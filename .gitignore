@@ -15,6 +15,7 @@ yarn-error.log
 *.sqlite
 *.sqlite3
 *.db
+memory
 
 # Uploaded files
 public/uploads/*
@@ -23,6 +24,7 @@ public/uploads/*
 # Logs
 logs
 *.log
+coverage/
 
 # OS generated files
 .DS_Store
