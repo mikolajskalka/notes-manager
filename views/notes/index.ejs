@@ -1,0 +1,68 @@
+<h1 class="mb-4">Wszystkie Notatki</h1>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form action="/notes/search" method="GET" class="d-flex">
+            <input type="text" name="query" class="form-control me-2" placeholder="Szukaj notatek..."
+                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+            <button type="submit" class="btn btn-outline-primary">Szukaj</button>
+        </form>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/notes/new" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Dodaj Nową Notatkę
+        </a>
+    </div>
+</div>
+
+<% if (typeof searchQuery !=='undefined' && searchQuery) { %>
+    <div class="alert alert-info mb-4">
+        <p class="m-0">
+            Wyniki wyszukiwania dla: "<%= searchQuery %>"
+                <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Wyczyść</a>
+        </p>
+    </div>
+    <% } %>
+
+        <% if (notes && notes.length> 0) { %>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <% notes.forEach(note=> { %>
+                    <div class="col">
+                        <div class="card h-100 note-card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <%= note.title %>
+                                </h5>
+                                <p class="card-text text-muted">
+                                    <small>Ostatnia edycja: <%= new Date(note.updatedAt).toLocaleString('pl-PL') %>
+                                            </small>
+                                </p>
+                                <p class="card-text">
+                                    <%= note.content.length> 150 ? note.content.substring(0, 150) + '...' : note.content
+                                        %>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-between">
+                                    <a href="/notes/<%= note.id %>" class="btn btn-sm btn-outline-primary">Zobacz</a>
+                                    <div>
+                                        <a href="/notes/<%= note.id %>/edit"
+                                            class="btn btn-sm btn-outline-secondary me-1">Edytuj</a>
+                                        <form action="/notes/<%= note.id %>?_method=DELETE" method="POST"
+                                            class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">Usuń</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+            <% } else { %>
+                <div class="alert alert-info">
+                    <p class="m-0">Nie znaleziono żadnych notatek. <a href="/notes/new">Dodaj swoją pierwszą
+                            notatkę</a>.</p>
+                </div>
+                <% } %>

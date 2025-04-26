@@ -1,0 +1,53 @@
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Rejestracja</h3>
+            </div>
+            <div class="card-body">
+                <% if (error && error.length> 0) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                    <% } %>
+
+                        <form action="/auth/register" method="POST">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Nazwa użytkownika</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Adres email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Hasło</label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                    minlength="6">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Potwierdź hasło</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                    required minlength="6">
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Utwórz konto</button>
+                                <div class="text-center mt-2">lub</div>
+                                <a href="/auth/microsoft" class="btn btn-outline-secondary">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/512px-Microsoft_logo.svg.png"
+                                        alt="Microsoft" style="height: 20px; margin-right: 8px;">
+                                    Zarejestruj przez konto Microsoft
+                                </a>
+                            </div>
+                        </form>
+            </div>
+            <div class="card-footer text-center">
+                Masz już konto? <a href="/auth/login">Zaloguj się</a>
+            </div>
+        </div>
+    </div>
+</div>

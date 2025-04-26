@@ -1,0 +1,52 @@
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <%= note.title %>
+            </h1>
+            <div>
+                <a href="/notes" class="btn btn-outline-secondary me-2">Wróć do listy</a>
+                <a href="/notes/<%= note.id %>/edit" class="btn btn-outline-primary">Edytuj</a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    <small>Utworzono: <%= new Date(note.createdAt).toLocaleString('pl-PL') %></small><br>
+                    <small>Zaktualizowano: <%= new Date(note.updatedAt).toLocaleString('pl-PL') %></small>
+                </p>
+
+                <div class="note-content mb-4">
+                    <% const paragraphs=note.content.split('\n'); %>
+                        <% paragraphs.forEach(paragraph=> { %>
+                            <p>
+                                <%= paragraph %>
+                            </p>
+                            <% }); %>
+                </div>
+
+                <% if (note.attachment) { %>
+                    <div class="mt-4">
+                        <h5>Załącznik:</h5>
+                        <a href="<%= note.attachment %>" class="btn btn-sm btn-outline-secondary" target="_blank">
+                            <i class="bi bi-file-earmark"></i> Pobierz załącznik
+                        </a>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-4">
+            <a href="/notes/<%= note.id %>/export" class="btn btn-success">
+                <i class="bi bi-download"></i> Eksportuj notatkę
+            </a>
+            <form action="/notes/<%= note.id %>?_method=DELETE" method="POST">
+                <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">
+                    <i class="bi bi-trash"></i> Usuń notatkę
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

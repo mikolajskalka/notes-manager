@@ -1,0 +1,47 @@
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Logowanie</h3>
+            </div>
+            <div class="card-body">
+                <% if (error && error.length> 0) { %>
+                    <div class="alert alert-danger">
+                        <%= error %>
+                    </div>
+                    <% } %>
+
+                        <% if (success && success.length> 0) { %>
+                            <div class="alert alert-success">
+                                <%= success %>
+                            </div>
+                            <% } %>
+
+                                <form action="/auth/login" method="POST">
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Nazwa użytkownika</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Hasło</label>
+                                        <input type="password" class="form-control" id="password" name="password"
+                                            required>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">Zaloguj się</button>
+                                        <a href="/auth/microsoft" class="btn btn-outline-secondary">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/512px-Microsoft_logo.svg.png"
+                                                alt="Microsoft" style="height: 20px; margin-right: 8px;">
+                                            Zaloguj przez konto Microsoft
+                                        </a>
+                                    </div>
+                                </form>
+            </div>
+            <div class="card-footer text-center">
+                Nie masz konta? <a href="/auth/register">Zarejestruj się</a>
+            </div>
+        </div>
+    </div>
+</div>
