@@ -1,0 +1,51 @@
+<%- contentFor('body') %>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Manage Labels</h1>
+            <a href="/labels/new" class="btn btn-primary">Create New Label</a>
+        </div>
+
+        <% if (labels && labels.length> 0) { %>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% labels.forEach(label=> { %>
+                            <tr>
+                                <td><span class="badge bg-primary">
+                                        <%= label.name %>
+                                    </span></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="/labels/<%= label.id %>/notes"
+                                            class="btn btn-sm btn-outline-primary">View Notes</a>
+                                        <a href="/labels/<%= label.id %>/edit"
+                                            class="btn btn-sm btn-outline-secondary">Edit</a>
+                                        <form action="/labels/<%= label.id %>?_method=DELETE" method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Are you sure you want to delete this label? This will remove the label from all notes but will not delete the notes themselves.')">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+                <div class="alert alert-info">
+                    <p>No labels found. <a href="/labels/new">Create your first label</a>.</p>
+                </div>
+                <% } %>
+
+                    <div class="mt-4">
+                        <a href="/notes" class="btn btn-outline-secondary">Back to Notes</a>
+                    </div>
+    </div>

@@ -4,7 +4,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const db = require('../models');
-const Note = db.Note;
+const { Note, Label, NoteLabel } = db;
+const { isAuthenticated } = require('../config/passport');
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -28,25 +29,18 @@ const upload = multer({
 // Get all unique labels
 const getUniqueLabels = async (userId) => {
     try {
-        const notes = await Note.findAll({
-            where: {
-                userId,
-                labels: {
-                    [db.Sequelize.Op.not]: null
-                }
-            }
+        // Use a more direct approach to get unique labels associated with a user's notes
+        const labels = await Label.findAll({
+            include: [{
+                model: Note,
+                where: { userId },
+                attributes: [], // Don't need to return note attributes
+                through: { attributes: [] } // Don't need join table attributes
+            }],
+            order: [['name', 'ASC']]
         });
 
-        // Extract all labels from notes
-        const allLabels = [];
-        notes.forEach(note => {
-            if (note.labels && note.labels.length > 0) {
-                allLabels.push(...note.labels);
-            }
-        });
-
-        // Filter unique labels and sort alphabetically
-        return [...new Set(allLabels)].sort();
+        return labels;
     } catch (err) {
         console.error('Error getting labels:', err);
         return [];
@@ -54,7 +48,7 @@ const getUniqueLabels = async (userId) => {
 };
 
 // Search notes
-router.get('/search', async (req, res) => {
+router.get('/search', isAuthenticated, async (req, res) => {
     try {
         const { query } = req.query;
 
@@ -92,46 +86,45 @@ router.get('/search', async (req, res) => {
 });
 
 // Filter notes by label
-router.get('/label/:label', async (req, res) => {
+router.get('/label/:labelId', isAuthenticated, async (req, res) => {
     try {
-        const label = req.params.label;
-        const { Op } = require('sequelize');
+        const labelId = req.params.labelId;
 
-        // Get all notes with this label
-        const notes = await Note.findAll({
-            where: {
-                userId: req.user.id,
-                labels: {
-                    [Op.like]: `%${label}%`
-                }
-            },
-            order: [['updatedAt', 'DESC']]
+        // Get the label with associated notes for this user
+        const label = await Label.findByPk(labelId, {
+            include: [{
+                model: Note,
+                where: { userId: req.user.id },
+                required: true
+            }]
         });
 
-        // Filter notes to only those that actually have this exact label
-        const filteredNotes = notes.filter(note =>
-            note.labels && note.labels.includes(label)
-        );
+        if (!label) {
+            req.flash('error', 'Label not found');
+            return res.redirect('/notes');
+        }
 
         // Get all available labels for filter bar
         const availableLabels = await getUniqueLabels(req.user.id);
 
         res.render('notes/index', {
-            notes: filteredNotes,
+            notes: label.Notes,
             selectedLabel: label,
             availableLabels
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        req.flash('error', 'Server error');
+        res.redirect('/notes');
     }
 });
 
 // Get all notes
-router.get('/', async (req, res) => {
+router.get('/', isAuthenticated, async (req, res) => {
     try {
         const notes = await Note.findAll({
             where: { userId: req.user.id }, // Only return notes of the current user
+            include: [Label], // Include labels
             order: [['updatedAt', 'DESC']]
         });
 
@@ -141,79 +134,120 @@ router.get('/', async (req, res) => {
         res.render('notes/index', { notes, availableLabels });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        req.flash('error', 'Server error');
+        res.redirect('/');
     }
 });
 
 // Form to create a new note
-router.get('/new', (req, res) => {
-    res.render('notes/new');
+router.get('/new', isAuthenticated, async (req, res) => {
+    try {
+        // Get all available labels
+        const labels = await Label.findAll({
+            order: [['name', 'ASC']]
+        });
+        res.render('notes/new', { labels });
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'Server error');
+        res.redirect('/notes');
+    }
 });
 
 // Create a new note
-router.post('/', upload.single('attachment'), async (req, res) => {
+router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) => {
     try {
-        const { title, content, labels } = req.body;
-        const noteData = {
+        const { title, content, labelIds } = req.body;
+
+        // Create the note without labels first
+        const note = await Note.create({
             title,
             content,
-            labels: labels ? labels.trim() : null,
             attachment: req.file ? `/uploads/${req.file.filename}` : null,
-            userId: req.user.id // Associate note with current user
-        };
+            userId: req.user.id
+        });
 
-        await Note.create(noteData);
+        // If labelIds is provided, associate the labels with the note
+        if (labelIds) {
+            // Handle both single label and multiple labels
+            const labelIdsArray = Array.isArray(labelIds) ? labelIds : [labelIds];
+
+            // Create associations in the join table
+            const labelAssociations = labelIdsArray.map(labelId => ({
+                noteId: note.id,
+                labelId: parseInt(labelId)
+            }));
+
+            if (labelAssociations.length > 0) {
+                await NoteLabel.bulkCreate(labelAssociations);
+            }
+        }
+
+        req.flash('success', 'Note created successfully');
         res.redirect('/notes');
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+        console.error('Error creating note:', err);
+        req.flash('error', 'An error occurred while creating the note');
+        res.redirect('/notes/new');
     }
 });
 
 // Get a single note
-router.get('/:id', async (req, res) => {
+router.get('/:id', isAuthenticated, async (req, res) => {
     try {
         const note = await Note.findOne({
             where: {
                 id: req.params.id,
                 userId: req.user.id // Ensure user can only view their own notes
-            }
+            },
+            include: [Label] // Include associated labels
         });
 
         if (!note) {
-            return res.status(404).send('Notatka nie została znaleziona');
+            req.flash('error', 'Note not found');
+            return res.redirect('/notes');
         }
 
         res.render('notes/show', { note });
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+        console.error('Error fetching note:', err);
+        req.flash('error', 'Server error');
+        res.redirect('/notes');
     }
 });
 
 // Form to edit a note
-router.get('/:id/edit', async (req, res) => {
+router.get('/:id/edit', isAuthenticated, async (req, res) => {
     try {
+        // Get the note with its associated labels
         const note = await Note.findOne({
             where: {
                 id: req.params.id,
                 userId: req.user.id // Ensure user can only edit their own notes
-            }
+            },
+            include: [Label]
         });
 
         if (!note) {
-            return res.status(404).send('Notatka nie została znaleziona');
+            req.flash('error', 'Note not found');
+            return res.redirect('/notes');
         }
 
-        res.render('notes/edit', { note });
+        // Get all available labels
+        const allLabels = await Label.findAll({
+            order: [['name', 'ASC']]
+        });
+
+        res.render('notes/edit', { note, allLabels });
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+        console.error('Error fetching note for edit:', err);
+        req.flash('error', 'Server error');
+        res.redirect('/notes');
     }
 });
 
 // Update a note
-router.put('/:id', upload.single('attachment'), async (req, res) => {
+router.put('/:id', isAuthenticated, upload.single('attachment'), async (req, res) => {
     try {
         const note = await Note.findOne({
             where: {
@@ -223,14 +257,16 @@ router.put('/:id', upload.single('attachment'), async (req, res) => {
         });
 
         if (!note) {
-            return res.status(404).send('Notatka nie została znaleziona');
+            req.flash('error', 'Note not found');
+            return res.redirect('/notes');
         }
 
-        const { title, content, labels } = req.body;
+        const { title, content, labelIds } = req.body;
+
+        // Update the note's basic information
         const updateData = {
             title,
-            content,
-            labels: labels ? labels.trim() : null
+            content
         };
 
         // If there's a new file, update attachment and delete old file if exists
@@ -244,16 +280,42 @@ router.put('/:id', upload.single('attachment'), async (req, res) => {
             updateData.attachment = `/uploads/${req.file.filename}`;
         }
 
+        // Update the note
         await note.update(updateData);
+
+        // Update the label associations
+        // First, remove all existing associations
+        await NoteLabel.destroy({
+            where: { noteId: note.id }
+        });
+
+        // Then, add the new ones
+        if (labelIds) {
+            // Handle both single label and multiple labels
+            const labelIdsArray = Array.isArray(labelIds) ? labelIds : [labelIds];
+
+            // Create associations in the join table
+            const labelAssociations = labelIdsArray.map(labelId => ({
+                noteId: note.id,
+                labelId: parseInt(labelId)
+            }));
+
+            if (labelAssociations.length > 0) {
+                await NoteLabel.bulkCreate(labelAssociations);
+            }
+        }
+
+        req.flash('success', 'Note updated successfully');
         res.redirect(`/notes/${note.id}`);
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+        console.error('Error updating note:', err);
+        req.flash('error', 'An error occurred while updating the note');
+        res.redirect(`/notes/${req.params.id}/edit`);
     }
 });
 
 // Delete a note
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', isAuthenticated, async (req, res) => {
     try {
         const note = await Note.findOne({
             where: {
@@ -283,17 +345,19 @@ router.delete('/:id', async (req, res) => {
 });
 
 // Export note
-router.get('/:id/export', async (req, res) => {
+router.get('/:id/export', isAuthenticated, async (req, res) => {
     try {
         const note = await Note.findOne({
             where: {
                 id: req.params.id,
                 userId: req.user.id // Ensure user can only export their own notes
-            }
+            },
+            include: [Label] // Include labels
         });
 
         if (!note) {
-            return res.status(404).send('Notatka nie została znaleziona');
+            req.flash('error', 'Note not found');
+            return res.redirect('/notes');
         }
 
         // Create a sanitized file name from the note title
@@ -305,9 +369,10 @@ router.get('/:id/export', async (req, res) => {
         const fileName = `${sanitizedTitle}_${note.id}.txt`;
         const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
 
-        // Include labels in the exported content
-        const labelsText = note.labels && note.labels.length > 0
-            ? `Labels: ${note.labels.join(', ')}\n\n`
+        // Format labels for export
+        const labelNames = note.Labels.map(label => label.name);
+        const labelsText = labelNames.length > 0
+            ? `Labels: ${labelNames.join(', ')}\n\n`
             : '';
 
         // Write content to file
@@ -317,22 +382,22 @@ router.get('/:id/export', async (req, res) => {
         // Send file as download
         res.download(filePath, fileName, (err) => {
             if (err) {
-                console.error(err);
-                return;
+                console.error('Error sending file:', err);
+                req.flash('error', 'Error exporting note');
+                return res.redirect(`/notes/${note.id}`);
             }
 
             // Delete file after download asynchronously
             fs.unlink(filePath, (unlinkErr) => {
                 if (unlinkErr) {
                     console.error('Error deleting exported file:', unlinkErr);
-                } else {
-                    console.log(`Successfully deleted exported file: ${fileName}`);
                 }
             });
         });
     } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+        console.error('Error exporting note:', err);
+        req.flash('error', 'Server error');
+        res.redirect('/notes');
     }
 });
 

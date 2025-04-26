@@ -12,6 +12,7 @@ const flash = require('connect-flash');
 // Import routes
 const notesRoutes = require('./routes/notes');
 const authRoutes = require('./routes/auth');
+const labelsRoutes = require('./routes/labels');
 
 // Initialize app
 const app = express();
@@ -52,6 +53,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/auth', authRoutes);
 app.use('/notes', isAuthenticated, notesRoutes); // Protect notes routes
+app.use('/labels', isAuthenticated, labelsRoutes); // Protect labels routes
 
 // Home route
 app.get('/', (req, res) => {

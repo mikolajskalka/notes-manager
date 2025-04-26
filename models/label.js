@@ -1,31 +1,17 @@
 module.exports = (sequelize, DataTypes) => {
-    const Note = sequelize.define('Note', {
+    const Label = sequelize.define('Label', {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        title: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
             validate: {
                 notEmpty: true
             }
-        },
-        content: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: {
-                notEmpty: true
-            }
-        },
-        attachment: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        userId: {
-            type: DataTypes.INTEGER,
-            allowNull: true
         },
         createdAt: {
             type: DataTypes.DATE,
@@ -37,5 +23,5 @@ module.exports = (sequelize, DataTypes) => {
         }
     });
 
-    return Note;
+    return Label;
 };

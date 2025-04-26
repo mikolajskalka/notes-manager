@@ -112,15 +112,43 @@ class MigrationManager {
     /**
      * Mark a migration as applied
      * @param {string} name - Migration name
+     * @param {number} retryCount - Number of retries (default 3)
+     * @param {number} delay - Delay between retries in ms (default 1000)
      */
-    async markMigrationApplied(name) {
-        try {
-            await this.MigrationMeta.create({ name });
-            return true;
-        } catch (error) {
-            console.error(`Failed to mark migration ${name} as applied:`, error);
-            return false;
+    async markMigrationApplied(name, retryCount = 3, delay = 1000) {
+        let lastError;
+
+        for (let attempt = 0; attempt <= retryCount; attempt++) {
+            try {
+                // Wait a bit before retrying (not on first attempt)
+                if (attempt > 0) {
+                    console.log(`Retry attempt ${attempt}/${retryCount} to mark migration ${name} as applied...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+
+                await this.MigrationMeta.create({ name });
+                if (attempt > 0) {
+                    console.log(`Successfully marked migration ${name} as applied after ${attempt} retries`);
+                }
+                return true;
+            } catch (error) {
+                lastError = error;
+
+                // If error is a database lock error, retry
+                if (error.original && error.original.code === 'SQLITE_BUSY') {
+                    console.log(`Database is locked, waiting to retry... (attempt ${attempt + 1}/${retryCount + 1})`);
+                    // Continue to next attempt
+                } else {
+                    // For other errors, don't retry
+                    console.error(`Failed to mark migration ${name} as applied:`, error);
+                    return false;
+                }
+            }
         }
+
+        // If we get here, all retries failed
+        console.error(`Failed to mark migration ${name} as applied after ${retryCount} retries:`, lastError);
+        return false;
     }
 
     /**
@@ -150,11 +178,16 @@ class MigrationManager {
                     // Run migration function with transaction
                     await up(this.sequelize, this.sequelize.Sequelize, transaction);
 
-                    // Mark migration as applied
-                    await this.markMigrationApplied(name);
-
                     // Commit transaction
                     await transaction.commit();
+
+                    // Mark migration as applied (with retry logic)
+                    // This is done outside the transaction to prevent locks
+                    const marked = await this.markMigrationApplied(name, 5, 1500);
+
+                    if (!marked) {
+                        throw new Error(`Failed to mark migration ${name} as applied after retries`);
+                    }
 
                     console.log(`Migration ${name} applied successfully`);
                     appliedCount++;
