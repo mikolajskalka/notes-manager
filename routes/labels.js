@@ -25,7 +25,7 @@ router.get('/new', isAuthenticated, (req, res) => {
 // Create a new label
 router.post('/', isAuthenticated, async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, color } = req.body;
 
         if (!name || name.trim() === '') {
             req.flash('error', 'Label name cannot be empty.');
@@ -39,7 +39,10 @@ router.post('/', isAuthenticated, async (req, res) => {
             return res.redirect('/labels/new');
         }
 
-        await Label.create({ name: name.trim() });
+        await Label.create({
+            name: name.trim(),
+            color: color || '#6c757d' // Use provided color or default
+        });
         req.flash('success', 'Label created successfully.');
         res.redirect('/labels');
     } catch (error) {
@@ -69,7 +72,7 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
 // Update a label
 router.put('/:id', isAuthenticated, async (req, res) => {
     try {
-        const { name } = req.body;
+        const { name, color } = req.body;
 
         if (!name || name.trim() === '') {
             req.flash('error', 'Label name cannot be empty.');
@@ -95,7 +98,10 @@ router.put('/:id', isAuthenticated, async (req, res) => {
             return res.redirect(`/labels/${req.params.id}/edit`);
         }
 
-        await label.update({ name: name.trim() });
+        await label.update({
+            name: name.trim(),
+            color: color || '#6c757d' // Use provided color or default
+        });
         req.flash('success', 'Label updated successfully.');
         res.redirect('/labels');
     } catch (error) {

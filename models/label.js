@@ -13,6 +13,14 @@ module.exports = (sequelize, DataTypes) => {
                 notEmpty: true
             }
         },
+        color: {
+            type: DataTypes.STRING,
+            defaultValue: '#6c757d', // Default to a neutral gray
+            allowNull: false,
+            validate: {
+                isHexColor: true
+            }
+        },
         createdAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
