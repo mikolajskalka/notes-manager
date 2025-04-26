@@ -17,23 +17,38 @@
                     <small>Zaktualizowano: <%= new Date(note.updatedAt).toLocaleString('pl-PL') %></small>
                 </p>
 
-                <div class="note-content mb-4">
-                    <% const paragraphs=note.content.split('\n'); %>
-                        <% paragraphs.forEach(paragraph=> { %>
-                            <p>
-                                <%= paragraph %>
-                            </p>
-                            <% }); %>
-                </div>
-
-                <% if (note.attachment) { %>
-                    <div class="mt-4">
-                        <h5>Załącznik:</h5>
-                        <a href="<%= note.attachment %>" class="btn btn-sm btn-outline-secondary" target="_blank">
-                            <i class="bi bi-file-earmark"></i> Pobierz załącznik
-                        </a>
+                <% if (note.labels && note.labels.length> 0) { %>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Etykiety:</h6>
+                        <div>
+                            <% note.labels.forEach(label=> { %>
+                                <a href="/notes/label/<%= encodeURIComponent(label) %>"
+                                    class="badge rounded-pill bg-secondary text-decoration-none me-1">
+                                    <%= label %>
+                                </a>
+                                <% }) %>
+                        </div>
                     </div>
                     <% } %>
+
+                        <div class="note-content mb-4">
+                            <% const paragraphs=note.content.split('\n'); %>
+                                <% paragraphs.forEach(paragraph=> { %>
+                                    <p>
+                                        <%= paragraph %>
+                                    </p>
+                                    <% }); %>
+                        </div>
+
+                        <% if (note.attachment) { %>
+                            <div class="mt-4">
+                                <h5>Załącznik:</h5>
+                                <a href="<%= note.attachment %>" class="btn btn-sm btn-outline-secondary"
+                                    target="_blank">
+                                    <i class="bi bi-file-earmark"></i> Pobierz załącznik
+                                </a>
+                            </div>
+                            <% } %>
             </div>
         </div>
 

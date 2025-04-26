@@ -23,6 +23,21 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true
         },
+        labels: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            get() {
+                const rawValue = this.getDataValue('labels');
+                return rawValue ? rawValue.split(',').map(label => label.trim()) : [];
+            },
+            set(value) {
+                if (Array.isArray(value)) {
+                    this.setDataValue('labels', value.join(','));
+                } else {
+                    this.setDataValue('labels', value);
+                }
+            }
+        },
         userId: {
             type: DataTypes.INTEGER,
             allowNull: true

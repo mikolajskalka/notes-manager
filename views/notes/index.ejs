@@ -15,60 +15,102 @@
     </div>
 </div>
 
-<% if (typeof searchQuery !=='undefined' && searchQuery) { %>
-    <div class="alert alert-info mb-4">
-        <p class="m-0">
-            Wyniki wyszukiwania dla: "<%= searchQuery %>"
-                <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Wyczyść</a>
-        </p>
+<% if (typeof availableLabels !=='undefined' && availableLabels.length> 0) { %>
+    <div class="mb-4">
+        <div class="d-flex align-items-center mb-2">
+            <h5 class="m-0 me-2">Filtruj według etykiet:</h5>
+            <% if (typeof selectedLabel !=='undefined' && selectedLabel) { %>
+                <a href="/notes" class="btn btn-sm btn-outline-secondary ms-2">Wyczyść filtr</a>
+                <% } %>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <% availableLabels.forEach(label=> { %>
+                <a href="/notes/label/<%= encodeURIComponent(label) %>"
+                    class="badge rounded-pill text-decoration-none <%= (typeof selectedLabel !== 'undefined' && selectedLabel === label) ? 'bg-primary' : 'bg-secondary' %>">
+                    <%= label %>
+                </a>
+                <% }) %>
+        </div>
     </div>
     <% } %>
 
-        <% if (notes && notes.length> 0) { %>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <% notes.forEach(note=> { %>
-                    <div class="col">
-                        <div class="card h-100 note-card">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <%= note.title %>
-                                </h5>
-                                <p class="card-text text-muted">
-                                    <small>Ostatnia edycja: <%= new Date(note.updatedAt).toLocaleString('pl-PL') %>
-                                    </small>
-                                </p>
-                                <p class="card-text">
-                                    <%= note.content.length> 150 ? note.content.substring(0, 150) + '...' : note.content
-                                        %>
-                                </p>
-                            </div>
-                            <div class="card-footer bg-transparent">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <a href="/notes/<%= note.id %>"
-                                            class="btn btn-sm btn-outline-primary me-1">Zobacz</a>
-                                        <a href="/notes/<%= note.id %>/export" class="btn btn-sm btn-outline-success">
-                                            <i class="bi bi-download"></i> Eksportuj
-                                        </a>
-                                    </div>
-                                    <div>
-                                        <a href="/notes/<%= note.id %>/edit"
-                                            class="btn btn-sm btn-outline-secondary me-1">Edytuj</a>
-                                        <form action="/notes/<%= note.id %>?_method=DELETE" method="POST"
-                                            class="d-inline">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">Usuń</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <% }) %>
+        <% if (typeof searchQuery !=='undefined' && searchQuery) { %>
+            <div class="alert alert-info mb-4">
+                <p class="m-0">
+                    Wyniki wyszukiwania dla: "<%= searchQuery %>"
+                        <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Wyczyść</a>
+                </p>
             </div>
-            <% } else { %>
-                <div class="alert alert-info">
-                    <p class="m-0">Nie znaleziono żadnych notatek. <a href="/notes/new">Dodaj swoją pierwszą
-                            notatkę</a>.</p>
-                </div>
-                <% } %>
+            <% } %>
+
+                <% if (typeof selectedLabel !=='undefined' && selectedLabel) { %>
+                    <div class="alert alert-info mb-4">
+                        <p class="m-0">
+                            Filtrowane według etykiety: "<%= selectedLabel %>"
+                                <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Wyczyść</a>
+                        </p>
+                    </div>
+                    <% } %>
+
+                        <% if (notes && notes.length> 0) { %>
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                <% notes.forEach(note=> { %>
+                                    <div class="col">
+                                        <div class="card h-100 note-card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">
+                                                    <%= note.title %>
+                                                </h5>
+                                                <p class="card-text text-muted">
+                                                    <small>Ostatnia edycja: <%= new
+                                                            Date(note.updatedAt).toLocaleString('pl-PL') %>
+                                                    </small>
+                                                </p>
+                                                <% if (note.labels && note.labels.length> 0) { %>
+                                                    <div class="mb-2">
+                                                        <% note.labels.forEach(label=> { %>
+                                                            <a href="/notes/label/<%= encodeURIComponent(label) %>"
+                                                                class="badge rounded-pill bg-secondary text-decoration-none me-1">
+                                                                <%= label %>
+                                                            </a>
+                                                            <% }) %>
+                                                    </div>
+                                                    <% } %>
+                                                        <p class="card-text">
+                                                            <%= note.content.length> 150 ? note.content.substring(0,
+                                                                150) + '...' : note.content
+                                                                %>
+                                                        </p>
+                                            </div>
+                                            <div class="card-footer bg-transparent">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <a href="/notes/<%= note.id %>"
+                                                            class="btn btn-sm btn-outline-primary me-1">Zobacz</a>
+                                                        <a href="/notes/<%= note.id %>/export"
+                                                            class="btn btn-sm btn-outline-success">
+                                                            <i class="bi bi-download"></i> Eksportuj
+                                                        </a>
+                                                    </div>
+                                                    <div>
+                                                        <a href="/notes/<%= note.id %>/edit"
+                                                            class="btn btn-sm btn-outline-secondary me-1">Edytuj</a>
+                                                        <form action="/notes/<%= note.id %>?_method=DELETE"
+                                                            method="POST" class="d-inline">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                                onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">Usuń</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                            </div>
+                            <% } else { %>
+                                <div class="alert alert-info">
+                                    <p class="m-0">Nie znaleziono żadnych notatek. <a href="/notes/new">Dodaj swoją
+                                            pierwszą
+                                            notatkę</a>.</p>
+                                </div>
+                                <% } %>

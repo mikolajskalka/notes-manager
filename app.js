@@ -63,14 +63,52 @@ app.get('/', (req, res) => {
 
 // Initialize database and start server
 const db = require('./models');
+const MigrationManager = require('./db/migrationManager');
 
-// Sync the database without force option for normal operation
-db.sequelize.sync()
-    .then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server started on http://localhost:${PORT}`);
-        });
+// Initialize and run database migrations
+const initializeDatabase = async () => {
+    try {
+        // First, sync essential tables with basic sync
+        await db.sequelize.sync({ alter: false });
+        console.log('Database synchronized');
+
+        // Initialize migration manager
+        const migrationManager = new MigrationManager(db.sequelize, db);
+        await migrationManager.init();
+
+        // Load and run migrations
+        const migrationsDir = path.join(__dirname, 'db', 'migrations');
+        await migrationManager.loadMigrationsFromDirectory(migrationsDir);
+        await migrationManager.runMigrations();
+
+        // Check if schema is up to date
+        const isUpToDate = await migrationManager.checkSchemaUpToDate();
+        if (!isUpToDate) {
+            console.warn('Warning: Database schema is not fully up to date with model definitions');
+        } else {
+            console.log('Database schema is up to date with model definitions');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Database initialization error:', error);
+        return false;
+    }
+};
+
+// Start the application
+initializeDatabase()
+    .then((success) => {
+        if (success) {
+            app.listen(PORT, () => {
+                console.log(`Server started on http://localhost:${PORT}`);
+            });
+        } else {
+            console.error('Failed to initialize database, application not started');
+            process.exit(1);
+        }
     })
     .catch(err => {
-        console.error('Failed to sync database:', err);
+        console.error('Unexpected error during initialization:', err);
+        process.exit(1);
     });

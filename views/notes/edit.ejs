@@ -19,8 +19,16 @@
                     <div class="mb-3">
                         <label for="content" class="form-label">Treść</label>
                         <textarea class="form-control" id="content" name="content" rows="10" required>
-                            <%= note.content %>
+                            <%= note.content.trim() %>
                         </textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="labels" class="form-label">Etykiety (oddzielone przecinkami)</label>
+                        <input type="text" class="form-control" id="labels" name="labels"
+                            value="<%= Array.isArray(note.labels) ? note.labels.join(', ') : '' %>"
+                            placeholder="np. praca, ważne, projekt">
+                        <small class="form-text text-muted">Dodaj etykiety, aby łatwiej organizować notatki.</small>
                     </div>
 
                     <div class="mb-3">

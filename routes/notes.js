@@ -25,6 +25,34 @@ const upload = multer({
     }
 });
 
+// Get all unique labels
+const getUniqueLabels = async (userId) => {
+    try {
+        const notes = await Note.findAll({
+            where: {
+                userId,
+                labels: {
+                    [db.Sequelize.Op.not]: null
+                }
+            }
+        });
+
+        // Extract all labels from notes
+        const allLabels = [];
+        notes.forEach(note => {
+            if (note.labels && note.labels.length > 0) {
+                allLabels.push(...note.labels);
+            }
+        });
+
+        // Filter unique labels and sort alphabetically
+        return [...new Set(allLabels)].sort();
+    } catch (err) {
+        console.error('Error getting labels:', err);
+        return [];
+    }
+};
+
 // Search notes
 router.get('/search', async (req, res) => {
     try {
@@ -53,7 +81,46 @@ router.get('/search', async (req, res) => {
             order: [['updatedAt', 'DESC']]
         });
 
-        res.render('notes/index', { notes, searchQuery });
+        // Get all available labels for filter bar
+        const availableLabels = await getUniqueLabels(req.user.id);
+
+        res.render('notes/index', { notes, searchQuery, availableLabels });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
+});
+
+// Filter notes by label
+router.get('/label/:label', async (req, res) => {
+    try {
+        const label = req.params.label;
+        const { Op } = require('sequelize');
+
+        // Get all notes with this label
+        const notes = await Note.findAll({
+            where: {
+                userId: req.user.id,
+                labels: {
+                    [Op.like]: `%${label}%`
+                }
+            },
+            order: [['updatedAt', 'DESC']]
+        });
+
+        // Filter notes to only those that actually have this exact label
+        const filteredNotes = notes.filter(note =>
+            note.labels && note.labels.includes(label)
+        );
+
+        // Get all available labels for filter bar
+        const availableLabels = await getUniqueLabels(req.user.id);
+
+        res.render('notes/index', {
+            notes: filteredNotes,
+            selectedLabel: label,
+            availableLabels
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -67,7 +134,11 @@ router.get('/', async (req, res) => {
             where: { userId: req.user.id }, // Only return notes of the current user
             order: [['updatedAt', 'DESC']]
         });
-        res.render('notes/index', { notes });
+
+        // Get all available labels for filter bar
+        const availableLabels = await getUniqueLabels(req.user.id);
+
+        res.render('notes/index', { notes, availableLabels });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -82,10 +153,11 @@ router.get('/new', (req, res) => {
 // Create a new note
 router.post('/', upload.single('attachment'), async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, labels } = req.body;
         const noteData = {
             title,
             content,
+            labels: labels ? labels.trim() : null,
             attachment: req.file ? `/uploads/${req.file.filename}` : null,
             userId: req.user.id // Associate note with current user
         };
@@ -154,8 +226,12 @@ router.put('/:id', upload.single('attachment'), async (req, res) => {
             return res.status(404).send('Notatka nie została znaleziona');
         }
 
-        const { title, content } = req.body;
-        const updateData = { title, content };
+        const { title, content, labels } = req.body;
+        const updateData = {
+            title,
+            content,
+            labels: labels ? labels.trim() : null
+        };
 
         // If there's a new file, update attachment and delete old file if exists
         if (req.file) {
@@ -208,51 +284,56 @@ router.delete('/:id', async (req, res) => {
 
 // Export note
 router.get('/:id/export', async (req, res) => {
-  try {
-    const note = await Note.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.user.id // Ensure user can only export their own notes
-      }
-    });
-    
-    if (!note) {
-      return res.status(404).send('Notatka nie została znaleziona');
-    }
+    try {
+        const note = await Note.findOne({
+            where: {
+                id: req.params.id,
+                userId: req.user.id // Ensure user can only export their own notes
+            }
+        });
 
-    // Create a sanitized file name from the note title
-    const sanitizedTitle = note.title
-      .replace(/[^\w\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '_');    // Replace spaces with underscores
-    
-    // Create a text file with note content
-    const fileName = `${sanitizedTitle}_${note.id}.txt`;
-    const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
-
-    // Write content to file
-    const content = `Title: ${note.title}\n\nCreated: ${note.createdAt}\nUpdated: ${note.updatedAt}\n\n${note.content}`;
-    fs.writeFileSync(filePath, content);
-
-    // Send file as download
-    res.download(filePath, fileName, (err) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      
-      // Delete file after download asynchronously
-      fs.unlink(filePath, (unlinkErr) => {
-        if (unlinkErr) {
-          console.error('Error deleting exported file:', unlinkErr);
-        } else {
-          console.log(`Successfully deleted exported file: ${fileName}`);
+        if (!note) {
+            return res.status(404).send('Notatka nie została znaleziona');
         }
-      });
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
-  }
+
+        // Create a sanitized file name from the note title
+        const sanitizedTitle = note.title
+            .replace(/[^\w\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '_');    // Replace spaces with underscores
+
+        // Create a text file with note content
+        const fileName = `${sanitizedTitle}_${note.id}.txt`;
+        const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
+
+        // Include labels in the exported content
+        const labelsText = note.labels && note.labels.length > 0
+            ? `Labels: ${note.labels.join(', ')}\n\n`
+            : '';
+
+        // Write content to file
+        const content = `Title: ${note.title}\n\nCreated: ${note.createdAt}\nUpdated: ${note.updatedAt}\n\n${labelsText}${note.content}`;
+        fs.writeFileSync(filePath, content);
+
+        // Send file as download
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            // Delete file after download asynchronously
+            fs.unlink(filePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error('Error deleting exported file:', unlinkErr);
+                } else {
+                    console.log(`Successfully deleted exported file: ${fileName}`);
+                }
+            });
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
 });
 
 module.exports = router;
