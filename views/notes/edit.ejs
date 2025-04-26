@@ -27,20 +27,31 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="labelIds" class="form-label">Labels</label>
-                                <select class="form-select" id="labelIds" name="labelIds" multiple>
+                                <label class="form-label">Labels</label>
+                                <div class="d-flex flex-wrap gap-2 mb-2" id="label-buttons">
                                     <% if (allLabels && allLabels.length> 0) { %>
                                         <% allLabels.forEach(label=> { %>
                                             <% const isSelected=note.Labels.some(noteLabel=> noteLabel.id === label.id);
                                                 %>
-                                                <option value="<%= label.id %>" <%=isSelected ? 'selected' : '' %>><%=
-                                                        label.name %>
-                                                </option>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input visually-hidden" type="checkbox"
+                                                        id="label-<%= label.id %>" name="labelIds"
+                                                        value="<%= label.id %>" <%=isSelected ? 'checked' : '' %>>
+                                                    <label class="btn badge rounded-pill px-3 py-2 label-selector"
+                                                        for="label-<%= label.id %>"
+                                                        style="background-color: <%= label.color %>; cursor: pointer; 
+                                                              opacity: <%= isSelected ? '1' : '0.7' %>; 
+                                                              border: <%= isSelected ? '2px solid #000' : '2px solid transparent' %>;">
+                                                        <%= label.name %>
+                                                    </label>
+                                                </div>
                                                 <% }); %>
-                                                    <% } %>
-                                </select>
+                                                    <% } else { %>
+                                                        <p class="text-muted">No labels available.</p>
+                                                        <% } %>
+                                </div>
                                 <div class="form-text">
-                                    Hold Ctrl (or Cmd on Mac) to select multiple labels.
+                                    Click on labels to select/deselect them.
                                     <a href="/labels/new" target="_blank">Create new label</a>
                                 </div>
                             </div>
@@ -69,3 +80,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const labelButtons = document.querySelectorAll('.label-selector');
+
+            labelButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const checkbox = document.getElementById(this.getAttribute('for'));
+                    // Toggle selected state visually
+                    if (checkbox.checked) {
+                        this.style.opacity = '0.7';
+                        this.style.border = '2px solid transparent';
+                    } else {
+                        this.style.opacity = '1';
+                        this.style.border = '2px solid #000';
+                    }
+                });
+            });
+        });
+    </script>
