@@ -208,46 +208,51 @@ router.delete('/:id', async (req, res) => {
 
 // Export note
 router.get('/:id/export', async (req, res) => {
-    try {
-        const note = await Note.findOne({
-            where: {
-                id: req.params.id,
-                userId: req.user.id // Ensure user can only export their own notes
-            }
-        });
-
-        if (!note) {
-            return res.status(404).send('Notatka nie została znaleziona');
-        }
-
-        // Create a text file with note content
-        const fileName = `note_${note.id}_${Date.now()}.txt`;
-        const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
-
-        // Write content to file
-        const content = `Title: ${note.title}\n\nCreated: ${note.createdAt}\nUpdated: ${note.updatedAt}\n\n${note.content}`;
-        fs.writeFileSync(filePath, content);
-
-        // Send file as download
-        res.download(filePath, fileName, (err) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-
-            // Delete file after download asynchronously
-            fs.unlink(filePath, (unlinkErr) => {
-                if (unlinkErr) {
-                    console.error('Error deleting exported file:', unlinkErr);
-                } else {
-                    console.log(`Successfully deleted exported file: ${fileName}`);
-                }
-            });
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
+  try {
+    const note = await Note.findOne({
+      where: {
+        id: req.params.id,
+        userId: req.user.id // Ensure user can only export their own notes
+      }
+    });
+    
+    if (!note) {
+      return res.status(404).send('Notatka nie została znaleziona');
     }
+
+    // Create a sanitized file name from the note title
+    const sanitizedTitle = note.title
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '_');    // Replace spaces with underscores
+    
+    // Create a text file with note content
+    const fileName = `${sanitizedTitle}_${note.id}.txt`;
+    const filePath = path.join(__dirname, '..', 'public', 'uploads', fileName);
+
+    // Write content to file
+    const content = `Title: ${note.title}\n\nCreated: ${note.createdAt}\nUpdated: ${note.updatedAt}\n\n${note.content}`;
+    fs.writeFileSync(filePath, content);
+
+    // Send file as download
+    res.download(filePath, fileName, (err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      
+      // Delete file after download asynchronously
+      fs.unlink(filePath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error('Error deleting exported file:', unlinkErr);
+        } else {
+          console.log(`Successfully deleted exported file: ${fileName}`);
+        }
+      });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
 });
 
 module.exports = router;
