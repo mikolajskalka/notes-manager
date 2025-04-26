@@ -232,10 +232,17 @@ router.get('/:id/export', async (req, res) => {
         res.download(filePath, fileName, (err) => {
             if (err) {
                 console.error(err);
+                return;
             }
 
-            // Delete file after download
-            fs.unlinkSync(filePath);
+            // Delete file after download asynchronously
+            fs.unlink(filePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error('Error deleting exported file:', unlinkErr);
+                } else {
+                    console.log(`Successfully deleted exported file: ${fileName}`);
+                }
+            });
         });
     } catch (err) {
         console.error(err);
