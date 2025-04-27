@@ -7,6 +7,7 @@ const { isAuthenticated } = require('../config/passport');
 router.get('/', isAuthenticated, async (req, res) => {
     try {
         const labels = await Label.findAll({
+            where: { userId: req.user.id }, // Only show labels belonging to the current user
             order: [['name', 'ASC']]
         });
         res.render('labels/index', { labels });
@@ -32,8 +33,14 @@ router.post('/', isAuthenticated, async (req, res) => {
             return res.redirect('/labels/new');
         }
 
-        // Check if label already exists
-        const existingLabel = await Label.findOne({ where: { name: name.trim() } });
+        // Check if label already exists for this user
+        const existingLabel = await Label.findOne({
+            where: {
+                name: name.trim(),
+                userId: req.user.id
+            }
+        });
+
         if (existingLabel) {
             req.flash('error', 'A label with this name already exists.');
             return res.redirect('/labels/new');
@@ -41,7 +48,8 @@ router.post('/', isAuthenticated, async (req, res) => {
 
         await Label.create({
             name: name.trim(),
-            color: color || '#6c757d' // Use provided color or default
+            color: color || '#6c757d', // Use provided color or default
+            userId: req.user.id // Associate with the current user
         });
         req.flash('success', 'Label created successfully.');
         res.redirect('/labels');
@@ -55,7 +63,13 @@ router.post('/', isAuthenticated, async (req, res) => {
 // Render form to edit a label
 router.get('/:id/edit', isAuthenticated, async (req, res) => {
     try {
-        const label = await Label.findByPk(req.params.id);
+        const label = await Label.findOne({
+            where: {
+                id: req.params.id,
+                userId: req.user.id // Ensure user can only edit their own labels
+            }
+        });
+
         if (!label) {
             req.flash('error', 'Label not found.');
             return res.redirect('/labels');
@@ -79,16 +93,23 @@ router.put('/:id', isAuthenticated, async (req, res) => {
             return res.redirect(`/labels/${req.params.id}/edit`);
         }
 
-        const label = await Label.findByPk(req.params.id);
+        const label = await Label.findOne({
+            where: {
+                id: req.params.id,
+                userId: req.user.id // Ensure user can only update their own labels
+            }
+        });
+
         if (!label) {
             req.flash('error', 'Label not found.');
             return res.redirect('/labels');
         }
 
-        // Check if new name already exists (excluding the current label)
+        // Check if new name already exists for this user (excluding the current label)
         const existingLabel = await Label.findOne({
             where: {
                 name: name.trim(),
+                userId: req.user.id,
                 id: { [require('sequelize').Op.ne]: req.params.id }
             }
         });
@@ -114,7 +135,13 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 // Delete a label
 router.delete('/:id', isAuthenticated, async (req, res) => {
     try {
-        const label = await Label.findByPk(req.params.id);
+        const label = await Label.findOne({
+            where: {
+                id: req.params.id,
+                userId: req.user.id // Ensure user can only delete their own labels
+            }
+        });
+
         if (!label) {
             req.flash('error', 'Label not found.');
             return res.redirect('/labels');
@@ -133,7 +160,11 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 // Get notes with a specific label
 router.get('/:id/notes', isAuthenticated, async (req, res) => {
     try {
-        const label = await Label.findByPk(req.params.id, {
+        const label = await Label.findOne({
+            where: {
+                id: req.params.id,
+                userId: req.user.id // Ensure user can only see their own labels
+            },
             include: {
                 model: Note,
                 where: { userId: req.user.id }

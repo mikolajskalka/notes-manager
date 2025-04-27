@@ -8,7 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
             validate: {
                 notEmpty: true
             }
@@ -21,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
                 isHexColor: true
             }
         },
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
         createdAt: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
@@ -29,6 +32,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
         }
+    }, {
+        indexes: [
+            // Create a composite unique index on name and userId
+            // This ensures labels are unique per user, not globally
+            {
+                unique: true,
+                fields: ['name', 'userId']
+            }
+        ]
     });
 
     return Label;

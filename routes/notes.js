@@ -316,8 +316,9 @@ router.get('/', isAuthenticated, async (req, res) => {
 // Form to create a new note
 router.get('/new', isAuthenticated, async (req, res) => {
     try {
-        // Get all available labels
+        // Get all available labels for the current user only
         const labels = await Label.findAll({
+            where: { userId: req.user.id },
             order: [['name', 'ASC']]
         });
         res.render('notes/new', { labels });
@@ -407,8 +408,9 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
             return res.redirect('/notes');
         }
 
-        // Get all available labels
+        // Get all available labels for the current user only
         const allLabels = await Label.findAll({
+            where: { userId: req.user.id },
             order: [['name', 'ASC']]
         });
 

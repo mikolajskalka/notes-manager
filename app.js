@@ -70,18 +70,18 @@ const MigrationManager = require('./db/migrationManager');
 // Initialize and run database migrations
 const initializeDatabase = async () => {
     try {
-        // First, sync essential tables with basic sync
-        await db.sequelize.sync({ alter: false });
-        console.log('Database synchronized');
-
         // Initialize migration manager
         const migrationManager = new MigrationManager(db.sequelize, db);
         await migrationManager.init();
 
-        // Load and run migrations
+        // Load and run migrations first
         const migrationsDir = path.join(__dirname, 'db', 'migrations');
         await migrationManager.loadMigrationsFromDirectory(migrationsDir);
         await migrationManager.runMigrations();
+
+        // Then sync the models to ensure all schema elements are in place
+        await db.sequelize.sync({ alter: false });
+        console.log('Database synchronized after migrations');
 
         // Check if schema is up to date
         const isUpToDate = await migrationManager.checkSchemaUpToDate();
