@@ -50,35 +50,88 @@ const getUniqueLabels = async (userId) => {
 // Search notes
 router.get('/search', isAuthenticated, async (req, res) => {
     try {
-        const { query } = req.query;
+        const { query, labelIds } = req.query;
 
         if (!query || query.trim() === '') {
+            // If there are label filters but no query, redirect to label filter
+            if (labelIds) {
+                return res.redirect(`/notes/filter?${new URLSearchParams(req.query).toString()}`);
+            }
             return res.redirect('/notes');
         }
 
         const searchQuery = query.trim();
-
-        // Search in both title and content using Sequelize's Op.or and Op.like
         const { Op } = require('sequelize');
-        const notes = await Note.findAll({
-            where: {
-                [Op.and]: [
-                    { userId: req.user.id }, // Only search user's own notes
+
+        // Base query conditions for searching text
+        const whereConditions = {
+            [Op.and]: [
+                { userId: req.user.id }, // Only search user's own notes
+                {
+                    [Op.or]: [
+                        { title: { [Op.like]: `%${searchQuery}%` } },
+                        { content: { [Op.like]: `%${searchQuery}%` } }
+                    ]
+                }
+            ]
+        };
+
+        // Step 1: Find note IDs matching the search and label criteria
+        let filteredNoteIds = [];
+
+        // If labels are selected, filter by them as well
+        if (labelIds) {
+            // Convert to array if only one label is selected
+            const labelIdsArray = Array.isArray(labelIds) ? labelIds : [labelIds];
+
+            // Find notes that match both search text and have the required labels
+            const notesWithTextAndLabels = await Note.findAll({
+                attributes: ['id'],
+                where: whereConditions,
+                include: [
                     {
-                        [Op.or]: [
-                            { title: { [Op.like]: `%${searchQuery}%` } },
-                            { content: { [Op.like]: `%${searchQuery}%` } }
-                        ]
+                        model: Label,
+                        where: {
+                            id: {
+                                [Op.in]: labelIdsArray
+                            }
+                        },
+                        required: true
                     }
                 ]
+            });
+
+            filteredNoteIds = notesWithTextAndLabels.map(note => note.id);
+        } else {
+            // Just search by text
+            const notesWithText = await Note.findAll({
+                attributes: ['id'],
+                where: whereConditions
+            });
+
+            filteredNoteIds = notesWithText.map(note => note.id);
+        }
+
+        // Step 2: Retrieve the filtered notes with ALL their labels
+        const notesWithAllTheirLabels = await Note.findAll({
+            where: {
+                id: { [Op.in]: filteredNoteIds },
+                userId: req.user.id
             },
+            include: [Label], // Include ALL labels for each note
             order: [['updatedAt', 'DESC']]
         });
 
         // Get all available labels for filter bar
         const availableLabels = await getUniqueLabels(req.user.id);
 
-        res.render('notes/index', { notes, searchQuery, availableLabels });
+        // Pass both search query and selected labels to the view
+        res.render('notes/index', {
+            notes: notesWithAllTheirLabels,
+            searchQuery,
+            availableLabels,
+            selectedLabelIds: labelIds ? (Array.isArray(labelIds) ? labelIds : [labelIds]) : []
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error');
@@ -89,28 +142,52 @@ router.get('/search', isAuthenticated, async (req, res) => {
 router.get('/label/:labelId', isAuthenticated, async (req, res) => {
     try {
         const labelId = req.params.labelId;
+        const { Op } = require('sequelize');
 
-        // Get the label with associated notes for this user
-        const label = await Label.findByPk(labelId, {
+        // Step 1: Get IDs of notes with this label
+        const notesWithLabel = await Note.findAll({
+            attributes: ['id'],
+            where: { userId: req.user.id },
             include: [{
-                model: Note,
-                where: { userId: req.user.id },
+                model: Label,
+                where: { id: labelId },
                 required: true
             }]
         });
 
-        if (!label) {
-            req.flash('error', 'Label not found');
+        const noteIds = notesWithLabel.map(note => note.id);
+
+        if (noteIds.length === 0) {
+            req.flash('error', 'No notes found with this label');
             return res.redirect('/notes');
         }
+
+        // Step 2: Get these notes with ALL their labels
+        const notesWithAllLabels = await Note.findAll({
+            where: {
+                id: { [Op.in]: noteIds },
+                userId: req.user.id
+            },
+            include: [Label], // Include ALL labels
+            order: [['updatedAt', 'DESC']]
+        });
 
         // Get all available labels for filter bar
         const availableLabels = await getUniqueLabels(req.user.id);
 
+        // Get the selected label for display purposes
+        const selectedLabel = await Label.findByPk(labelId);
+
+        if (!selectedLabel) {
+            req.flash('error', 'Label not found');
+            return res.redirect('/notes');
+        }
+
         res.render('notes/index', {
-            notes: label.Notes,
-            selectedLabel: label,
-            availableLabels
+            notes: notesWithAllLabels,
+            selectedLabel,
+            availableLabels,
+            selectedLabelIds: [labelId]
         });
     } catch (err) {
         console.error(err);
@@ -122,10 +199,13 @@ router.get('/label/:labelId', isAuthenticated, async (req, res) => {
 // Filter notes by multiple labels
 router.get('/filter', isAuthenticated, async (req, res) => {
     try {
-        let { labelIds } = req.query;
+        let { labelIds, query } = req.query;
 
-        // If no labels are selected, redirect to the main notes page
+        // If no labels are selected, redirect to the main search or notes page
         if (!labelIds) {
+            if (query) {
+                return res.redirect(`/notes/search?query=${encodeURIComponent(query)}`);
+            }
             return res.redirect('/notes');
         }
 
@@ -134,25 +214,66 @@ router.get('/filter', isAuthenticated, async (req, res) => {
             labelIds = [labelIds];
         }
 
-        // Find all notes that have ALL the selected labels
         const { Op } = require('sequelize');
 
-        // Get notes with all the selected labels
-        const notesWithLabels = await Note.findAll({
+        // Base query condition for user's notes
+        const whereConditions = { userId: req.user.id };
+
+        // If there's a search query, add text search conditions
+        if (query && query.trim() !== '') {
+            const searchQuery = query.trim();
+            whereConditions[Op.and] = [
+                {
+                    [Op.or]: [
+                        { title: { [Op.like]: `%${searchQuery}%` } },
+                        { content: { [Op.like]: `%${searchQuery}%` } }
+                    ]
+                }
+            ];
+        }
+
+        // Step 1: Filter notes that have the selected labels
+        let filteredNoteIds = [];
+
+        if (labelIds.length === 1) {
+            // For single label, use a simpler query
+            const notesWithSingleLabel = await Note.findAll({
+                attributes: ['id'],
+                where: whereConditions,
+                include: [
+                    {
+                        model: Label,
+                        where: { id: labelIds[0] },
+                        required: true,
+                        through: { attributes: [] }
+                    }
+                ]
+            });
+            filteredNoteIds = notesWithSingleLabel.map(note => note.id);
+        } else {
+            // For multiple labels (AND logic), first get all notes with any of the labels
+            const notesWithAnyLabel = await Note.findAll({
+                where: whereConditions,
+                include: [Label],
+                order: [['updatedAt', 'DESC']]
+            });
+
+            // Then filter for notes that have ALL the selected labels
+            const notesWithAllLabels = notesWithAnyLabel.filter(note => {
+                const noteLabelsIds = note.Labels.map(label => label.id.toString());
+                return labelIds.every(labelId => noteLabelsIds.includes(labelId));
+            });
+
+            filteredNoteIds = notesWithAllLabels.map(note => note.id);
+        }
+
+        // Step 2: Retrieve the filtered notes with ALL their labels
+        const notesWithAllTheirLabels = await Note.findAll({
             where: {
+                id: { [Op.in]: filteredNoteIds },
                 userId: req.user.id
             },
-            include: [
-                {
-                    model: Label,
-                    where: {
-                        id: {
-                            [Op.in]: labelIds
-                        }
-                    },
-                    through: { attributes: [] }
-                }
-            ],
+            include: [Label], // Include ALL labels for each note
             order: [['updatedAt', 'DESC']]
         });
 
@@ -160,9 +281,10 @@ router.get('/filter', isAuthenticated, async (req, res) => {
         const availableLabels = await getUniqueLabels(req.user.id);
 
         res.render('notes/index', {
-            notes: notesWithLabels,
+            notes: notesWithAllTheirLabels,
             availableLabels,
-            selectedLabelIds: labelIds
+            selectedLabelIds: labelIds,
+            searchQuery: query || ''
         });
     } catch (err) {
         console.error('Error filtering notes by labels:', err);
