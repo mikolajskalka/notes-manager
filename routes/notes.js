@@ -119,6 +119,58 @@ router.get('/label/:labelId', isAuthenticated, async (req, res) => {
     }
 });
 
+// Filter notes by multiple labels
+router.get('/filter', isAuthenticated, async (req, res) => {
+    try {
+        let { labelIds } = req.query;
+
+        // If no labels are selected, redirect to the main notes page
+        if (!labelIds) {
+            return res.redirect('/notes');
+        }
+
+        // Convert to array if only one label is selected
+        if (!Array.isArray(labelIds)) {
+            labelIds = [labelIds];
+        }
+
+        // Find all notes that have ALL the selected labels
+        const { Op } = require('sequelize');
+
+        // Get notes with all the selected labels
+        const notesWithLabels = await Note.findAll({
+            where: {
+                userId: req.user.id
+            },
+            include: [
+                {
+                    model: Label,
+                    where: {
+                        id: {
+                            [Op.in]: labelIds
+                        }
+                    },
+                    through: { attributes: [] }
+                }
+            ],
+            order: [['updatedAt', 'DESC']]
+        });
+
+        // Get all available labels for filter bar
+        const availableLabels = await getUniqueLabels(req.user.id);
+
+        res.render('notes/index', {
+            notes: notesWithLabels,
+            availableLabels,
+            selectedLabelIds: labelIds
+        });
+    } catch (err) {
+        console.error('Error filtering notes by labels:', err);
+        req.flash('error', 'An error occurred while filtering notes');
+        res.redirect('/notes');
+    }
+});
+
 // Get all notes
 router.get('/', isAuthenticated, async (req, res) => {
     try {

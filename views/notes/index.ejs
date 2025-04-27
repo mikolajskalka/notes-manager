@@ -25,111 +25,142 @@
             <div class="mb-4">
                 <div class="d-flex align-items-center mb-2">
                     <h5 class="m-0 me-2">Filter by label:</h5>
-                    <% if (typeof selectedLabel !=='undefined' && selectedLabel) { %>
-                        <a href="/notes" class="btn btn-sm btn-outline-secondary ms-2">Clear filter</a>
-                        <% } %>
-                </div>
-                <div class="d-flex flex-wrap gap-2">
-                    <% availableLabels.forEach(label=> { %>
-                        <a href="/notes/label/<%= label.id %>" class="badge rounded-pill text-decoration-none px-3 py-2"
-                            style="background-color: <%= label.color %>; 
-                                   opacity: <%= (typeof selectedLabel !== 'undefined' && selectedLabel.id === label.id) ? '1' : '0.7' %>; 
-                                   border: <%= (typeof selectedLabel !== 'undefined' && selectedLabel.id === label.id) ? '2px solid #000' : '2px solid transparent' %>;">
-                            <%= label.name %>
-                        </a>
-                        <% }) %>
-                </div>
-            </div>
-            <% } %>
-
-                <% if (typeof searchQuery !=='undefined' && searchQuery) { %>
-                    <div class="alert alert-info mb-4">
-                        <p class="m-0">
-                            Search results for: "<%= searchQuery %>"
-                                <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Clear</a>
-                        </p>
-                    </div>
+                    <% if (typeof selectedLabelIds !== 'undefined' && selectedLabelIds && selectedLabelIds.length > 0) { %>
+                        <a href="/notes" class="btn btn-sm btn-outline-secondary ms-2">Clear filters</a>
                     <% } %>
+                </div>
+                <form action="/notes/filter" method="GET" id="labelFilterForm">
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <% availableLabels.forEach(label => { %>
+                            <div class="form-check form-check-inline">
+                                <input 
+                                    class="form-check-input visually-hidden label-checkbox" 
+                                    type="checkbox" 
+                                    id="label-<%= label.id %>" 
+                                    name="labelIds" 
+                                    value="<%= label.id %>"
+                                    <%= (typeof selectedLabelIds !== 'undefined' && selectedLabelIds && selectedLabelIds.includes(label.id.toString())) ? 'checked' : '' %>>
+                                <label 
+                                    class="badge rounded-pill px-3 py-2 label-selector" 
+                                    for="label-<%= label.id %>"
+                                    style="background-color: <%= label.color %>; 
+                                          cursor: pointer; 
+                                          opacity: <%= (typeof selectedLabelIds !== 'undefined' && selectedLabelIds && selectedLabelIds.includes(label.id.toString())) ? '1' : '0.7' %>; 
+                                          border: <%= (typeof selectedLabelIds !== 'undefined' && selectedLabelIds && selectedLabelIds.includes(label.id.toString())) ? '2px solid #000' : '2px solid transparent' %>;">
+                                    <%= label.name %>
+                                </label>
+                            </div>
+                        <% }) %>
+                    </div>
+                </form>
+            </div>
+        <% } %>
 
-                        <% if (typeof selectedLabel !=='undefined' && selectedLabel) { %>
-                            <div class="alert alert-info mb-4">
-                                <p class="m-0">
-                                    Filtered by label: "<%= selectedLabel.name %>"
-                                        <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Clear</a>
+        <% if (typeof searchQuery !=='undefined' && searchQuery) { %>
+            <div class="alert alert-info mb-4">
+                <p class="m-0">
+                    Search results for: "<%= searchQuery %>"
+                    <a href="/notes" class="ms-2 btn btn-sm btn-outline-secondary">Clear</a>
+                </p>
+            </div>
+        <% } %>
+
+        <% if (notes && notes.length> 0) { %>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <% notes.forEach(note=> { %>
+                    <div class="col">
+                        <div class="card h-100 note-card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <%= note.title %>
+                                </h5>
+                                <p class="card-text text-muted">
+                                    <small>Last edited: <% const date=new Date(note.updatedAt);
+                                            const day=date.getDate().toString().padStart(2, '0'
+                                            ); const month=(date.getMonth() +
+                                            1).toString().padStart(2, '0' ); const
+                                            year=date.getFullYear(); const
+                                            hours=date.getHours().toString().padStart(2, '0' );
+                                            const
+                                            minutes=date.getMinutes().toString().padStart(2, '0'
+                                            ); %>
+                                            <%= `${day}/${month}/${year} ${hours}:${minutes}` %>
+                                    </small>
+                                </p>
+                                <% if (note.Labels && note.Labels.length> 0) { %>
+                                    <div class="mb-2">
+                                        <% note.Labels.forEach(label=> { %>
+                                            <a href="/notes/label/<%= label.id %>"
+                                                class="badge rounded-pill text-decoration-none me-1"
+                                                style="background-color: <%= label.color %>; 
+                                                        opacity: 0.7;
+                                                        border: 2px solid transparent;">
+                                                <%= label.name %>
+                                            </a>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                                <p class="card-text">
+                                    <%= note.content.length> 150 ?
+                                        note.content.substring(0, 150) + '...' :
+                                        note.content %>
                                 </p>
                             </div>
-                            <% } %>
-
-                                <% if (notes && notes.length> 0) { %>
-                                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                                        <% notes.forEach(note=> { %>
-                                            <div class="col">
-                                                <div class="card h-100 note-card">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title">
-                                                            <%= note.title %>
-                                                        </h5>
-                                                        <p class="card-text text-muted">
-                                                            <small>Last edited: <% const date=new Date(note.updatedAt);
-                                                                    const day=date.getDate().toString().padStart(2, '0'
-                                                                    ); const month=(date.getMonth() +
-                                                                    1).toString().padStart(2, '0' ); const
-                                                                    year=date.getFullYear(); const
-                                                                    hours=date.getHours().toString().padStart(2, '0' );
-                                                                    const
-                                                                    minutes=date.getMinutes().toString().padStart(2, '0'
-                                                                    ); %>
-                                                                    <%= `${day}/${month}/${year} ${hours}:${minutes}` %>
-                                                                        </small>
-                                                        </p>
-                                                        <% if (note.Labels && note.Labels.length> 0) { %>
-                                                            <div class="mb-2">
-                                                                <% note.Labels.forEach(label=> { %>
-                                                                    <a href="/notes/label/<%= label.id %>"
-                                                                        class="badge rounded-pill text-decoration-none me-1"
-                                                                        style="background-color: <%= label.color %>; 
-                                                                               <%= (typeof selectedLabel !== 'undefined' && selectedLabel.id === label.id) ? 'opacity: 1; border: 2px solid #000;' : 'opacity: 0.7; border: 2px solid transparent;' %>">
-                                                                        <%= label.name %>
-                                                                    </a>
-                                                                    <% }) %>
-                                                            </div>
-                                                            <% } %>
-                                                                <p class="card-text">
-                                                                    <%= note.content.length> 150 ?
-                                                                        note.content.substring(0, 150) + '...' :
-                                                                        note.content %>
-                                                                </p>
-                                                    </div>
-                                                    <div class="card-footer bg-transparent">
-                                                        <div class="d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                <a href="/notes/<%= note.id %>"
-                                                                    class="btn btn-sm btn-outline-primary me-1">View</a>
-                                                                <a href="/notes/<%= note.id %>/export"
-                                                                    class="btn btn-sm btn-outline-success">
-                                                                    <i class="bi bi-download"></i> Export
-                                                                </a>
-                                                            </div>
-                                                            <div>
-                                                                <a href="/notes/<%= note.id %>/edit"
-                                                                    class="btn btn-sm btn-outline-secondary me-1">Edit</a>
-                                                                <form action="/notes/<%= note.id %>?_method=DELETE"
-                                                                    method="POST" class="d-inline">
-                                                                    <button type="submit"
-                                                                        class="btn btn-sm btn-outline-danger"
-                                                                        onclick="return confirm('Are you sure you want to delete this note?')">Delete</button>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <% }) %>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <a href="/notes/<%= note.id %>"
+                                            class="btn btn-sm btn-outline-primary me-1">View</a>
+                                        <a href="/notes/<%= note.id %>/export"
+                                            class="btn btn-sm btn-outline-success">
+                                            <i class="bi bi-download"></i> Export
+                                        </a>
                                     </div>
-                                    <% } else { %>
-                                        <div class="alert alert-info">
-                                            <p class="m-0">No notes found. <a href="/notes/new">Add your first note</a>.
-                                            </p>
-                                        </div>
-                                        <% } %>
+                                    <div>
+                                        <a href="/notes/<%= note.id %>/edit"
+                                            class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                                        <form action="/notes/<%= note.id %>?_method=DELETE"
+                                            method="POST" class="d-inline">
+                                            <button type="submit"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Are you sure you want to delete this note?')">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="alert alert-info">
+                <p class="m-0">No notes found. <a href="/notes/new">Add your first note</a>.
+                </p>
+            </div>
+        <% } %>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labelSelectors = document.querySelectorAll('.label-selector');
+            const labelCheckboxes = document.querySelectorAll('.label-checkbox');
+            const form = document.getElementById('labelFilterForm');
+            
+            labelSelectors.forEach(label => {
+                label.addEventListener('click', function() {
+                    const checkbox = document.getElementById(this.getAttribute('for'));
+                    // Toggle the visual appearance
+                    if (checkbox.checked) {
+                        this.style.opacity = '0.7';
+                        this.style.border = '2px solid transparent';
+                    } else {
+                        this.style.opacity = '1';
+                        this.style.border = '2px solid #000';
+                    }
+                    
+                    // Submit the form automatically when a checkbox changes
+                    setTimeout(() => form.submit(), 50);
+                });
+            });
+        });
+    </script>
