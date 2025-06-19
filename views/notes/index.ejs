@@ -5,7 +5,7 @@
 
         <div class="row mb-4">
             <div class="col-md-6">
-                <form action="/notes/search" method="GET" class="d-flex" id="searchForm">
+                <form action="<%= createUrl('/notes/search') %>" method="GET" class="d-flex" id="searchForm">
                     <input type="text" name="query" class="form-control me-2" placeholder="Szukaj notatek..."
                         value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
                     <button type="submit" class="btn btn-outline-primary">Szukaj</button>
@@ -20,10 +20,10 @@
                 </form>
             </div>
             <div class="col-md-6 text-end">
-                <a href="/labels" class="btn btn-outline-secondary me-2">
+                <a href="<%= createUrl('/labels') %>" class="btn btn-outline-secondary me-2">
                     Zarządzaj etykietami
                 </a>
-                <a href="/notes/new" class="btn btn-primary">
+                <a href="<%= createUrl('/notes/new') %>" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i> Dodaj notatkę
                 </a>
             </div>
@@ -35,10 +35,10 @@
                     <h5 class="m-0 me-2">Filtruj po etykiecie:</h5>
                     <% if ((typeof selectedLabelIds !=='undefined' && selectedLabelIds && selectedLabelIds.length> 0) ||
                         (typeof searchQuery !== 'undefined' && searchQuery && searchQuery.trim() !== '')) { %>
-                        <a href="/notes" class="btn btn-sm btn-outline-secondary ms-2">Wyczyść filtry</a>
+                        <a href="<%= createUrl('/notes') %>" class="btn btn-sm btn-outline-secondary ms-2">Wyczyść filtry</a>
                         <% } %>
                 </div>
-                <form action="/notes/filter" method="GET" id="labelFilterForm">
+                <form action="<%= createUrl('/notes/filter') %>" method="GET" id="labelFilterForm">
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         <% availableLabels.forEach(label=> { %>
                             <div class="form-check form-check-inline">
@@ -87,7 +87,7 @@
                                         <% if (note.Labels && note.Labels.length> 0) { %>
                                             <div class="mb-2">
                                                 <% note.Labels.forEach(label=> { %>
-                                                    <a href="/notes/label/<%= label.id %>"
+                                                    <a href="<%= createUrl('/notes/label/' + label.id) %>"
                                                         class="badge rounded-pill text-decoration-none me-1" style="background-color: <%= label.color %>; 
                                                         opacity: 0.7;
                                                         border: 2px solid transparent;">
@@ -105,17 +105,17 @@
                                     <div class="card-footer bg-transparent">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <a href="/notes/<%= note.id %>"
+                                                <a href="<%= createUrl('/notes/' + note.id) %>"
                                                     class="btn btn-sm btn-outline-primary me-1">Zobacz</a>
-                                                <a href="/notes/<%= note.id %>/export"
+                                                <a href="<%= createUrl('/notes/' + note.id + '/export') %>"
                                                     class="btn btn-sm btn-outline-success">
                                                     <i class="bi bi-download"></i> Eksportuj
                                                 </a>
                                             </div>
                                             <div>
-                                                <a href="/notes/<%= note.id %>/edit"
+                                                <a href="<%= createUrl('/notes/' + note.id + '/edit') %>"
                                                     class="btn btn-sm btn-outline-secondary me-1">Edytuj</a>
-                                                <form action="/notes/<%= note.id %>?_method=DELETE" method="POST"
+                                                <form action="<%= createUrl('/notes/' + note.id) %>?_method=DELETE" method="POST"
                                                     class="d-inline">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"
                                                         onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">Usuń</button>
@@ -129,7 +129,7 @@
                     </div>
                     <% } else { %>
                         <div class="alert alert-info">
-                            <p class="m-0">Brak notatek. <a href="/notes/new">Dodaj swoją pierwszą notatkę</a>.
+                            <p class="m-0">Brak notatek. <a href="<%= createUrl('/notes/new') %>">Dodaj swoją pierwszą notatkę</a>.
                             </p>
                         </div>
                         <% } %>

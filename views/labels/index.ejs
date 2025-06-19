@@ -3,7 +3,7 @@
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Zarządzaj etykietami</h1>
-            <a href="/labels/new" class="btn btn-primary">Utwórz nową etykietę</a>
+            <a href="<%= createUrl('/labels/new') %>" class="btn btn-primary">Utwórz nową etykietę</a>
         </div>
 
         <% if (labels && labels.length> 0) { %>
@@ -31,11 +31,11 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="/labels/<%= label.id %>/notes"
+                                        <a href="<%= createUrl('/labels/' + label.id + '/notes') %>"
                                             class="btn btn-sm btn-outline-primary">Zobacz notatki</a>
-                                        <a href="/labels/<%= label.id %>/edit"
+                                        <a href="<%= createUrl('/labels/' + label.id + '/edit') %>"
                                             class="btn btn-sm btn-outline-secondary">Edytuj</a>
-                                        <form action="/labels/<%= label.id %>?_method=DELETE" method="POST"
+                                        <form action="<%= createUrl('/labels/' + label.id) %>?_method=DELETE" method="POST"
                                             class="d-inline"
                                             onsubmit="return confirm('Czy na pewno chcesz usunąć tę etykietę? Usunięcie spowoduje usunięcie etykiety ze wszystkich notatek, ale nie usunie samych notatek.')">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Usuń</button>
@@ -49,11 +49,11 @@
             </div>
             <% } else { %>
                 <div class="alert alert-info">
-                    <p>Nie znaleziono etykiet. <a href="/labels/new">Utwórz pierwszą etykietę</a>.</p>
+                    <p>Nie znaleziono etykiet. <a href="<%= createUrl('/labels/new') %>">Utwórz pierwszą etykietę</a>.</p>
                 </div>
                 <% } %>
 
                     <div class="mt-4">
-                        <a href="/notes" class="btn btn-outline-secondary">Wróć do notatek</a>
+                        <a href="<%= createUrl('/notes') %>" class="btn btn-outline-secondary">Wróć do notatek</a>
                     </div>
     </div>

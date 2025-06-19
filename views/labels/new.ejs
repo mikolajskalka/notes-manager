@@ -3,7 +3,7 @@
     <div class="container mt-4">
         <h1>Stwórz nową etykietę</h1>
 
-        <form action="/labels" method="POST">
+        <form action="<%= createUrl('/labels') %>" method="POST">
             <div class="mb-3">
                 <label for="name" class="form-label">Nazwa etykiety</label>
                 <input type="text" class="form-control" id="name" name="name" required>
@@ -19,7 +19,7 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Utwórz etykietę</button>
-                <a href="/labels" class="btn btn-outline-secondary">Anuluj</a>
+                <a href="<%= createUrl('/labels') %>" class="btn btn-outline-secondary">Anuluj</a>
             </div>
         </form>
     </div>

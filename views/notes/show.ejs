@@ -8,8 +8,8 @@
                         <%= note.title %>
                     </h1>
                     <div>
-                        <a href="/notes" class="btn btn-secondary me-2">Wróć do listy notatek</a>
-                        <a href="/notes/<%= note.id %>/edit" class="btn btn-warning">Edytuj</a>
+                        <a href="<%= createUrl('/notes') %>" class="btn btn-secondary me-2">Wróć do listy notatek</a>
+                        <a href="<%= createUrl('/notes/' + note.id + '/edit') %>" class="btn btn-warning">Edytuj</a>
                     </div>
                 </div>
 
@@ -25,7 +25,7 @@
                                 <h6 class="text-muted mb-2">Etykiety:</h6>
                                 <div>
                                     <% note.Labels.forEach(label=> { %>
-                                        <a href="/notes/label/<%= label.id %>"
+                                        <a href="<%= createUrl('/notes/label/' + label.id) %>"
                                             class="badge rounded-pill bg-secondary text-decoration-none me-1">
                                             <%= label.name %>
                                         </a>
@@ -56,10 +56,10 @@
                 </div>
 
                 <div class="d-flex justify-content-between mb-4">
-                    <a href="/notes/<%= note.id %>/export" class="btn btn-outline-success">
+                    <a href="<%= createUrl('/notes/' + note.id + '/export') %>" class="btn btn-outline-success">
                         Eksportuj do pliku
                     </a>
-                    <form action="/notes/<%= note.id %>?_method=DELETE" method="POST" style="display:inline-block">
+                    <form action="<%= createUrl('/notes/' + note.id) %>?_method=DELETE" method="POST" style="display:inline-block">
                         <button type="submit" class="btn btn-danger"
                             onclick="return confirm('Na pewno usunąć notatkę?')">
                             Usuń
