@@ -30,7 +30,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container">
-            <a class="navbar-brand" href="<%= basePath %>/notes">📒 Menadżer Notatek</a>
+            <a class="navbar-brand" href="/notes">📒 Menadżer Notatek</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -38,13 +38,13 @@
                 <ul class="navbar-nav me-auto">
                     <% if (currentUser) { %>
                         <li class="nav-item">
-                            <a class="nav-link" href="<%= basePath %>/notes">Wszystkie Notatki</a>
+                            <a class="nav-link" href="/notes">Wszystkie Notatki</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="<%= basePath %>/notes/new">Dodaj Notatkę</a>
+                            <a class="nav-link" href="/notes/new">Dodaj Notatkę</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="<%= basePath %>/labels">Etykiety</a>
+                            <a class="nav-link" href="/labels">Etykiety</a>
                         </li>
                         <% } %>
                 </ul>
@@ -58,15 +58,15 @@
                                 <%= currentUser.username %>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="<%= basePath %>/auth/logout">Wyloguj się</a></li>
+                                <li><a class="dropdown-item" href="/auth/logout">Wyloguj się</a></li>
                             </ul>
                         </li>
                         <% } else { %>
                             <li class="nav-item">
-                                <a class="nav-link" href="<%= basePath %>/auth/login">Zaloguj się</a>
+                                <a class="nav-link" href="/auth/login">Zaloguj się</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="<%= basePath %>/auth/register">Zarejestruj się</a>
+                                <a class="nav-link" href="/auth/register">Zarejestruj się</a>
                             </li>
                             <% } %>
                 </ul>

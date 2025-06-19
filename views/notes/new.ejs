@@ -5,12 +5,12 @@
             <div class="col-md-8 offset-md-2">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1>Dodaj nową notatkę</h1>
-                    <a href="<%= basePath %>/notes" class="btn btn-outline-secondary">Wróć do listy notatek</a>
+                    <a href="/notes" class="btn btn-outline-secondary">Wróć do listy notatek</a>
                 </div>
 
                 <div class="card">
                     <div class="card-body">
-                        <form action="<%= basePath %>/notes" method="POST" enctype="multipart/form-data">
+                        <form action="/notes" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
                                 <label for="title" class="form-label">Tytuł</label>
                                 <input type="text" class="form-control" id="title" name="title" required>

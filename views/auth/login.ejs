@@ -17,7 +17,7 @@
                             </div>
                             <% } %>
 
-                                <form action="<%= basePath %>/auth/login" method="POST">
+                                <form action="/auth/login" method="POST">
                                     <div class="mb-3">
                                         <label for="username" class="form-label">Nazwa użytkownika</label>
                                         <input type="text" class="form-control" id="username" name="username" required>
@@ -31,7 +31,7 @@
 
                                     <div class="d-grid gap-2">
                                         <button type="submit" class="btn btn-primary">Zaloguj się</button>
-                                        <a href="<%= basePath %>/auth/microsoft" class="btn btn-outline-secondary">
+                                        <a href="/auth/microsoft" class="btn btn-outline-secondary">
                                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/512px-Microsoft_logo.svg.png"
                                                 alt="Microsoft" style="height: 20px; margin-right: 8px;">
                                             Zaloguj przez konto Microsoft
@@ -40,7 +40,7 @@
                                 </form>
             </div>
             <div class="card-footer text-center">
-                Nie masz konta? <a href="<%= basePath %>/auth/register">Zarejestruj się</a>
+                Nie masz konta? <a href="/auth/register">Zarejestruj się</a>
             </div>
         </div>
     </div>

@@ -26,11 +26,6 @@ const upload = multer({
     }
 });
 
-// Helper to get basePath
-function getBasePath(req) {
-    return req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
-}
-
 // Get all unique labels
 const getUniqueLabels = async (userId) => {
     try {
@@ -339,14 +334,12 @@ router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) 
     try {
         if (!req.body) {
             req.flash('error', 'Brak danych formularza.');
-            const basePath = getBasePath(req);
-            return res.redirect(basePath + '/notes/new');
+            return res.redirect('/notes/new');
         }
         const { title, content, labelIds } = req.body;
         if (!title || !content) {
             req.flash('error', 'Tytuł i treść są wymagane.');
-            const basePath = getBasePath(req);
-            return res.redirect(basePath + '/notes/new');
+            return res.redirect('/notes/new');
         }
 
         // Create the note without labels first
@@ -374,13 +367,11 @@ router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) 
         }
 
         req.flash('success', 'Notatka została dodana!');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes');
+        res.redirect('/notes');
     } catch (err) {
         console.error(err);
         req.flash('error', 'Błąd podczas dodawania notatki');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes/new');
+        res.redirect('/notes/new');
     }
 });
 
@@ -499,13 +490,11 @@ router.put('/:id', isAuthenticated, upload.single('attachment'), async (req, res
         }
 
         req.flash('success', 'Notatka została zaktualizowana!');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes/' + req.params.id);
+        res.redirect('/notes/' + req.params.id);
     } catch (err) {
         console.error(err);
         req.flash('error', 'Błąd podczas edycji notatki');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes/' + req.params.id + '/edit');
+        res.redirect('/notes/' + req.params.id + '/edit');
     }
 });
 
@@ -533,13 +522,11 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 
         await note.destroy();
         req.flash('success', 'Notatka została usunięta!');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes');
+        res.redirect('/notes');
     } catch (err) {
         console.error(err);
         req.flash('error', 'Błąd podczas usuwania notatki');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes');
+        res.redirect('/notes');
     }
 });
 
@@ -596,8 +583,7 @@ router.get('/:id/export', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Error exporting note:', err);
         req.flash('error', 'Server error');
-        const basePath = getBasePath(req);
-        res.redirect(basePath + '/notes');
+        res.redirect('/notes');
     }
 });
 

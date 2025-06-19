@@ -19,15 +19,13 @@ exports.login = (req, res, next) => {
         }
         if (!user) {
             req.flash('error', info.message || 'Nieprawidłowe dane logowania');
-            const basePath = req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
-            return res.redirect(basePath + '/auth/login');
+            return res.redirect('/auth/login');
         }
         req.logIn(user, (err) => {
             if (err) {
                 return next(err);
             }
-            const basePath = req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
-            res.redirect(basePath + '/notes');
+            res.redirect('/notes');
         });
     })(req, res, next);
 };

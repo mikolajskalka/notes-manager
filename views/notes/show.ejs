@@ -8,8 +8,8 @@
                         <%= note.title %>
                     </h1>
                     <div>
-                        <a href="<%= basePath %>/notes" class="btn btn-secondary me-2">Wróć do listy notatek</a>
-                        <a href="<%= basePath %>/notes/<%= note.id %>/edit" class="btn btn-warning">Edytuj</a>
+                        <a href="/notes" class="btn btn-secondary me-2">Wróć do listy notatek</a>
+                        <a href="/notes/<%= note.id %>/edit" class="btn btn-warning">Edytuj</a>
                     </div>
                 </div>
 
@@ -56,11 +56,10 @@
                 </div>
 
                 <div class="d-flex justify-content-between mb-4">
-                    <a href="<%= basePath %>/notes/<%= note.id %>/export" class="btn btn-outline-success">
+                    <a href="/notes/<%= note.id %>/export" class="btn btn-outline-success">
                         Eksportuj do pliku
                     </a>
-                    <form action="<%= basePath %>/notes/<%= note.id %>?_method=DELETE" method="POST"
-                        style="display:inline-block">
+                    <form action="/notes/<%= note.id %>?_method=DELETE" method="POST" style="display:inline-block">
                         <button type="submit" class="btn btn-danger"
                             onclick="return confirm('Na pewno usunąć notatkę?')">
                             Usuń

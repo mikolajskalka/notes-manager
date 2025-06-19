@@ -44,27 +44,23 @@ const { isAuthenticated } = require('./config/passport')(app);
 
 // Make user data available in all templates
 app.use((req, res, next) => {
-    const basePath = process.env.BASE_PATH || '';
-    res.locals.basePath = basePath;
-    req.app.set('basePath', basePath);
     res.locals.currentUser = req.user;
     res.locals.error = req.flash('error');
     res.locals.success = req.flash('success');
     next();
 });
 
-// Use basePath for all main route mounts
-const basePath = process.env.BASE_PATH || '';
-app.use(basePath + '/auth', authRoutes);
-app.use(basePath + '/notes', isAuthenticated, notesRoutes); // Protect notes routes
-app.use(basePath + '/labels', isAuthenticated, labelsRoutes); // Protect labels routes
+// Route mounts at root level to work with reverse proxy
+app.use('/auth', authRoutes);
+app.use('/notes', isAuthenticated, notesRoutes); // Protect notes routes
+app.use('/labels', isAuthenticated, labelsRoutes); // Protect labels routes
 
 // Home route
-app.get(basePath + '/', (req, res) => {
+app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect(basePath + '/notes');
+        return res.redirect('/notes');
     }
-    res.redirect(basePath + '/auth/login');
+    res.redirect('/auth/login');
 });
 
 // Initialize database and start server
