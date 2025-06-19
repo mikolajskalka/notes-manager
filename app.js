@@ -53,17 +53,18 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
-app.use('/auth', authRoutes);
-app.use('/notes', isAuthenticated, notesRoutes); // Protect notes routes
-app.use('/labels', isAuthenticated, labelsRoutes); // Protect labels routes
+// Use basePath for all main route mounts
+const basePath = process.env.BASE_PATH || '';
+app.use(basePath + '/auth', authRoutes);
+app.use(basePath + '/notes', isAuthenticated, notesRoutes); // Protect notes routes
+app.use(basePath + '/labels', isAuthenticated, labelsRoutes); // Protect labels routes
 
 // Home route
-app.get('/', (req, res) => {
+app.get(basePath + '/', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect('/notes');
+        return res.redirect(basePath + '/notes');
     }
-    res.redirect('/auth/login');
+    res.redirect(basePath + '/auth/login');
 });
 
 // Initialize database and start server

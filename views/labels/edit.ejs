@@ -1,24 +1,24 @@
 <%- contentFor('body') %>
 
     <div class="container mt-4">
-        <h1>Edit Label</h1>
+        <h1>Edytuj etykietę</h1>
 
         <form action="<%= basePath %>/labels/<%= label.id %>?_method=PUT" method="POST">
             <div class="mb-3">
-                <label for="name" class="form-label">Label Name</label>
+                <label for="name" class="form-label">Nazwa etykiety</label>
                 <input type="text" class="form-control" id="name" name="name" value="<%= label.name %>" required>
-                <div class="form-text">Label names must be unique</div>
+                <div class="form-text">Nazwy etykiet muszą być unikalne</div>
             </div>
 
             <div class="mb-3">
-                <label for="color" class="form-label">Label Color</label>
+                <label for="color" class="form-label">Kolor etykiety</label>
                 <input type="color" class="form-control form-control-color" id="color" name="color"
-                    value="<%= label.color || '#6c757d' %>" title="Choose a color for the label">
-                <div class="form-text">Select a color to visually identify this label</div>
+                    value="<%= label.color || '#6c757d' %>" title="Wybierz kolor dla etykiety">
+                <div class="form-text">Wybierz kolor, aby wizualnie zidentyfikować tę etykietę</div>
             </div>
 
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Update Label</button>
+                <button type="submit" class="btn btn-primary">Zaktualizuj etykietę</button>
                 <a href="<%= basePath %>/labels" class="btn btn-secondary">Wróć do listy etykiet</a>
             </div>
         </form>

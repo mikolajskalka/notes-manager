@@ -2,7 +2,7 @@
 
     <div class="container mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Notes with Label: <span class="badge bg-primary">
+            <h1>Notatki z etykietą: <span class="badge bg-primary">
                     <%= label.name %>
                 </span></h1>
             <a href="<%= basePath %>/labels" class="btn btn-secondary">Wróć do listy etykiet</a>
@@ -30,15 +30,15 @@
                                             <% }); %>
                                     </div>
                                     <% } %>
-                                        <div class="text-muted small">Updated: <%= new
+                                        <div class="text-muted small">Zaktualizowano: <%= new
                                                 Date(note.updatedAt).toLocaleString() %>
                                         </div>
                             </div>
                             <div class="card-footer">
                                 <div class="d-flex justify-content-between">
-                                    <a href="/notes/<%= note.id %>" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="/notes/<%= note.id %>" class="btn btn-sm btn-outline-primary">Zobacz</a>
                                     <a href="/notes/<%= note.id %>/edit"
-                                        class="btn btn-sm btn-outline-secondary">Edit</a>
+                                        class="btn btn-sm btn-outline-secondary">Edytuj</a>
                                 </div>
                             </div>
                         </div>
@@ -47,7 +47,7 @@
             </div>
             <% } else { %>
                 <div class="alert alert-info">
-                    <p>No notes found with this label.</p>
+                    <p>Brak notatek z tą etykietą.</p>
                 </div>
                 <% } %>
     </div>

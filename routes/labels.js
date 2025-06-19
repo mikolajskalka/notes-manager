@@ -14,7 +14,8 @@ router.get('/', isAuthenticated, async (req, res) => {
     } catch (error) {
         console.error('Error fetching labels:', error);
         req.flash('error', 'An error occurred while fetching labels.');
-        res.redirect('/notes');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/notes');
     }
 });
 
@@ -30,7 +31,8 @@ router.post('/', isAuthenticated, async (req, res) => {
 
         if (!name || name.trim() === '') {
             req.flash('error', 'Label name cannot be empty.');
-            return res.redirect('/labels/new');
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(basePath + '/labels/new');
         }
 
         // Check if label already exists for this user
@@ -43,7 +45,8 @@ router.post('/', isAuthenticated, async (req, res) => {
 
         if (existingLabel) {
             req.flash('error', 'A label with this name already exists.');
-            return res.redirect('/labels/new');
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(basePath + '/labels/new');
         }
 
         await Label.create({
@@ -52,11 +55,13 @@ router.post('/', isAuthenticated, async (req, res) => {
             userId: req.user.id // Associate with the current user
         });
         req.flash('success', 'Label created successfully.');
-        res.redirect('/labels');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels');
     } catch (error) {
         console.error('Error creating label:', error);
         req.flash('error', 'An error occurred while creating the label.');
-        res.redirect('/labels/new');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels/new');
     }
 });
 
@@ -72,14 +77,16 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(basePath + '/labels');
         }
 
         res.render('labels/edit', { label });
     } catch (error) {
         console.error('Error fetching label for edit:', error);
         req.flash('error', 'An error occurred while fetching the label.');
-        res.redirect('/labels');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels');
     }
 });
 
@@ -90,7 +97,8 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 
         if (!name || name.trim() === '') {
             req.flash('error', 'Label name cannot be empty.');
-            return res.redirect(`/labels/${req.params.id}/edit`);
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(`${basePath}/labels/${req.params.id}/edit`);
         }
 
         const label = await Label.findOne({
@@ -102,7 +110,8 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(basePath + '/labels');
         }
 
         // Check if new name already exists for this user (excluding the current label)
@@ -116,19 +125,22 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 
         if (existingLabel) {
             req.flash('error', 'A label with this name already exists.');
-            return res.redirect(`/labels/${req.params.id}/edit`);
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(`${basePath}/labels/${req.params.id}/edit`);
         }
 
         await label.update({
             name: name.trim(),
-            color: color || '#6c757d' // Use provided color or default
+            color: color || label.color // Update color only if new color is provided
         });
         req.flash('success', 'Label updated successfully.');
-        res.redirect('/labels');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels');
     } catch (error) {
         console.error('Error updating label:', error);
         req.flash('error', 'An error occurred while updating the label.');
-        res.redirect(`/labels/${req.params.id}/edit`);
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(`${basePath}/labels/${req.params.id}/edit`);
     }
 });
 
@@ -144,16 +156,19 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(basePath + '/labels');
         }
 
         await label.destroy();
         req.flash('success', 'Label deleted successfully.');
-        res.redirect('/labels');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels');
     } catch (error) {
         console.error('Error deleting label:', error);
         req.flash('error', 'An error occurred while deleting the label.');
-        res.redirect('/labels');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels');
     }
 });
 
@@ -173,14 +188,16 @@ router.get('/:id/notes', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            const basePath = req.app.get('basePath') || '';
+            return res.redirect(basePath + '/labels');
         }
 
         res.render('labels/notes', { label, notes: label.Notes });
     } catch (error) {
         console.error('Error fetching notes by label:', error);
         req.flash('error', 'An error occurred while fetching notes.');
-        res.redirect('/labels');
+        const basePath = req.app.get('basePath') || '';
+        res.redirect(basePath + '/labels');
     }
 });
 

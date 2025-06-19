@@ -11,7 +11,8 @@ const isAuthenticated = (req, res, next) => {
         return next();
     }
     req.flash('error', 'You must be logged in to access this page');
-    res.redirect('/auth/login');
+    const basePath = req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
+    res.redirect(basePath + '/auth/login');
 };
 
 module.exports = (app) => {

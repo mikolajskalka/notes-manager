@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const passport = require('passport');
+
+// Helper to get basePath
+function getBasePath(req) {
+    return req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
+}
 
 // Login routes
 router.get('/login', authController.loginForm);
@@ -11,7 +17,13 @@ router.get('/register', authController.registerForm);
 router.post('/register', authController.register);
 
 // Logout route
-router.get('/logout', authController.logout);
+router.get('/logout', (req, res) => {
+    req.logout(() => {
+        req.flash('success', 'Wylogowano pomyślnie.');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/auth/login');
+    });
+});
 
 // Microsoft OAuth routes
 router.get('/microsoft', authController.microsoftAuth);

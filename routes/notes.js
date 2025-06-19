@@ -26,6 +26,11 @@ const upload = multer({
     }
 });
 
+// Helper to get basePath
+function getBasePath(req) {
+    return req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
+}
+
 // Get all unique labels
 const getUniqueLabels = async (userId) => {
     try {
@@ -332,7 +337,17 @@ router.get('/new', isAuthenticated, async (req, res) => {
 // Create a new note
 router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) => {
     try {
+        if (!req.body) {
+            req.flash('error', 'Brak danych formularza.');
+            const basePath = getBasePath(req);
+            return res.redirect(basePath + '/notes/new');
+        }
         const { title, content, labelIds } = req.body;
+        if (!title || !content) {
+            req.flash('error', 'Tytuł i treść są wymagane.');
+            const basePath = getBasePath(req);
+            return res.redirect(basePath + '/notes/new');
+        }
 
         // Create the note without labels first
         const note = await Note.create({
@@ -358,12 +373,14 @@ router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) 
             }
         }
 
-        req.flash('success', 'Note created successfully');
-        res.redirect('/notes');
+        req.flash('success', 'Notatka została dodana!');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes');
     } catch (err) {
-        console.error('Error creating note:', err);
-        req.flash('error', 'An error occurred while creating the note');
-        res.redirect('/notes/new');
+        console.error(err);
+        req.flash('error', 'Błąd podczas dodawania notatki');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes/new');
     }
 });
 
@@ -481,12 +498,14 @@ router.put('/:id', isAuthenticated, upload.single('attachment'), async (req, res
             }
         }
 
-        req.flash('success', 'Note updated successfully');
-        res.redirect(`/notes/${note.id}`);
+        req.flash('success', 'Notatka została zaktualizowana!');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes/' + req.params.id);
     } catch (err) {
-        console.error('Error updating note:', err);
-        req.flash('error', 'An error occurred while updating the note');
-        res.redirect(`/notes/${req.params.id}/edit`);
+        console.error(err);
+        req.flash('error', 'Błąd podczas edycji notatki');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes/' + req.params.id + '/edit');
     }
 });
 
@@ -513,10 +532,14 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
         }
 
         await note.destroy();
-        res.redirect('/notes');
+        req.flash('success', 'Notatka została usunięta!');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes');
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        req.flash('error', 'Błąd podczas usuwania notatki');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes');
     }
 });
 
@@ -573,7 +596,8 @@ router.get('/:id/export', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Error exporting note:', err);
         req.flash('error', 'Server error');
-        res.redirect('/notes');
+        const basePath = getBasePath(req);
+        res.redirect(basePath + '/notes');
     }
 });
 

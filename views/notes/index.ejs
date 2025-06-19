@@ -1,14 +1,14 @@
 <%- contentFor('body') %>
 
     <div class="container mt-4">
-        <h1 class="mb-4">All Notes</h1>
+        <h1 class="mb-4">Wszystkie notatki</h1>
 
         <div class="row mb-4">
             <div class="col-md-6">
                 <form action="<%= basePath %>/notes/search" method="GET" class="d-flex" id="searchForm">
-                    <input type="text" name="query" class="form-control me-2" placeholder="Search notes..."
+                    <input type="text" name="query" class="form-control me-2" placeholder="Szukaj notatek..."
                         value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
-                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                    <button type="submit" class="btn btn-outline-primary">Szukaj</button>
 
                     <!-- Hidden inputs for selected label IDs -->
                     <% if (typeof selectedLabelIds !=='undefined' && selectedLabelIds && selectedLabelIds.length> 0) {
@@ -21,10 +21,10 @@
             </div>
             <div class="col-md-6 text-end">
                 <a href="/labels" class="btn btn-outline-secondary me-2">
-                    Manage Labels
+                    Zarządzaj etykietami
                 </a>
                 <a href="<%= basePath %>/notes/new" class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> Add New Note
+                    <i class="bi bi-plus-lg"></i> Dodaj notatkę
                 </a>
             </div>
         </div>
@@ -32,10 +32,10 @@
         <% if (availableLabels && availableLabels.length> 0) { %>
             <div class="mb-4">
                 <div class="d-flex align-items-center mb-2">
-                    <h5 class="m-0 me-2">Filter by label:</h5>
+                    <h5 class="m-0 me-2">Filtruj po etykiecie:</h5>
                     <% if ((typeof selectedLabelIds !=='undefined' && selectedLabelIds && selectedLabelIds.length> 0) ||
                         (typeof searchQuery !== 'undefined' && searchQuery && searchQuery.trim() !== '')) { %>
-                        <a href="/notes" class="btn btn-sm btn-outline-secondary ms-2">Clear all filters</a>
+                        <a href="/notes" class="btn btn-sm btn-outline-secondary ms-2">Wyczyść filtry</a>
                         <% } %>
                 </div>
                 <form action="/notes/filter" method="GET" id="labelFilterForm">
@@ -75,7 +75,7 @@
                                             <%= note.title %>
                                         </h5>
                                         <p class="card-text text-muted">
-                                            <small>Last edited: <% const date=new Date(note.updatedAt); const
+                                            <small>Ostatnia edycja: <% const date=new Date(note.updatedAt); const
                                                     day=date.getDate().toString().padStart(2, '0' ); const
                                                     month=(date.getMonth() + 1).toString().padStart(2, '0' ); const
                                                     year=date.getFullYear(); const
@@ -106,19 +106,19 @@
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <a href="<%= basePath %>/notes/<%= note.id %>"
-                                                    class="btn btn-sm btn-outline-primary me-1">View</a>
+                                                    class="btn btn-sm btn-outline-primary me-1">Zobacz</a>
                                                 <a href="<%= basePath %>/notes/<%= note.id %>/export"
                                                     class="btn btn-sm btn-outline-success">
-                                                    <i class="bi bi-download"></i> Export
+                                                    <i class="bi bi-download"></i> Eksportuj
                                                 </a>
                                             </div>
                                             <div>
                                                 <a href="<%= basePath %>/notes/<%= note.id %>/edit"
-                                                    class="btn btn-sm btn-outline-secondary me-1">Edit</a>
+                                                    class="btn btn-sm btn-outline-secondary me-1">Edytuj</a>
                                                 <form action="<%= basePath %>/notes/<%= note.id %>?_method=DELETE"
                                                     method="POST" class="d-inline">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this note?')">Delete</button>
+                                                        onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">Usuń</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -129,7 +129,7 @@
                     </div>
                     <% } else { %>
                         <div class="alert alert-info">
-                            <p class="m-0">No notes found. <a href="/notes/new">Add your first note</a>.
+                            <p class="m-0">Brak notatek. <a href="/notes/new">Dodaj swoją pierwszą notatkę</a>.
                             </p>
                         </div>
                         <% } %>

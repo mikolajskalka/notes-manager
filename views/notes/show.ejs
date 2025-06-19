@@ -16,13 +16,13 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <p class="text-muted mb-3">
-                            <small>Created: <%= new Date(note.createdAt).toLocaleString() %></small><br>
-                            <small>Updated: <%= new Date(note.updatedAt).toLocaleString() %></small>
+                            <small>Utworzono: <%= new Date(note.createdAt).toLocaleString() %></small><br>
+                            <small>Aktualizowano: <%= new Date(note.updatedAt).toLocaleString() %></small>
                         </p>
 
                         <% if (note.Labels && note.Labels.length> 0) { %>
                             <div class="mb-3">
-                                <h6 class="text-muted mb-2">Labels:</h6>
+                                <h6 class="text-muted mb-2">Etykiety:</h6>
                                 <div>
                                     <% note.Labels.forEach(label=> { %>
                                         <a href="/notes/label/<%= label.id %>"
@@ -45,10 +45,10 @@
 
                                 <% if (note.attachment) { %>
                                     <div class="mt-4">
-                                        <h5>Attachment:</h5>
+                                        <h5>Załącznik:</h5>
                                         <a href="<%= note.attachment %>" class="btn btn-sm btn-outline-secondary"
                                             target="_blank">
-                                            <i class="bi bi-file-earmark"></i> Download Attachment
+                                            <i class="bi bi-file-earmark"></i> Pobierz załącznik
                                         </a>
                                     </div>
                                     <% } %>

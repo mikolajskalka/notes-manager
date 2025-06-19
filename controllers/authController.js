@@ -12,12 +12,25 @@ exports.loginForm = (req, res) => {
 };
 
 // Process login
-exports.login = passport.authenticate('local', {
-    successRedirect: '/notes',
-    failureRedirect: '/auth/login',
-    failureFlash: true,
-    successFlash: 'Pomyślnie zalogowano!'
-});
+exports.login = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            req.flash('error', info.message || 'Nieprawidłowe dane logowania');
+            const basePath = req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
+            return res.redirect(basePath + '/auth/login');
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                return next(err);
+            }
+            const basePath = req.app && req.app.get('basePath') ? req.app.get('basePath') : '';
+            res.redirect(basePath + '/notes');
+        });
+    })(req, res, next);
+};
 
 // Display register form
 exports.registerForm = (req, res) => {

@@ -4,9 +4,9 @@
         <div class="row">
             <div class="col-md-8 offset-md-2">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>Edit Note</h1>
+                    <h1>Edytuj notatkę</h1>
                     <div>
-                        <a href="<%= basePath %>/notes" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<%= basePath %>/notes" class="btn btn-outline-secondary">Anuluj</a>
                     </div>
                 </div>
 
@@ -15,20 +15,20 @@
                         <form action="<%= basePath %>/notes/<%= note.id %>?_method=PUT" method="POST"
                             enctype="multipart/form-data">
                             <div class="mb-3">
-                                <label for="title" class="form-label">Title</label>
+                                <label for="title" class="form-label">Tytuł</label>
                                 <input type="text" class="form-control" id="title" name="title"
                                     value="<%= note.title %>" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="content" class="form-label">Content</label>
+                                <label for="content" class="form-label">Treść</label>
                                 <textarea class="form-control" id="content" name="content" rows="10" required>
-                                    <%= note.content.trim() %>
+                                    <%= note.content ? note.content.trim() : '' %>
                                 </textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Labels</label>
+                                <label class="form-label">Etykiety</label>
                                 <div class="d-flex flex-wrap gap-2 mb-2" id="label-buttons">
                                     <% if (allLabels && allLabels.length> 0) { %>
                                         <% allLabels.forEach(label=> { %>
@@ -48,32 +48,32 @@
                                                 </div>
                                                 <% }); %>
                                                     <% } else { %>
-                                                        <p class="text-muted">No labels available.</p>
+                                                        <p class="text-muted">Brak dostępnych etykiet.</p>
                                                         <% } %>
                                 </div>
                                 <div class="form-text">
-                                    Click on labels to select/deselect them.
-                                    <a href="/labels/new" target="_blank">Create new label</a>
+                                    Kliknij na etykiety, aby je wybrać/odznaczyć.
+                                    <a href="/labels/new" target="_blank">Utwórz nową etykietę</a>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="attachment" class="form-label">Attachment (optional)</label>
+                                <label for="attachment" class="form-label">Załącznik (opcjonalnie)</label>
                                 <input class="form-control" type="file" id="attachment" name="attachment">
                                 <% if (note.attachment) { %>
                                     <div class="mt-2">
-                                        <p class="mb-1">Current attachment:</p>
+                                        <p class="mb-1">Aktualny załącznik:</p>
                                         <a href="<%= note.attachment %>" target="_blank" class="text-decoration-none">
-                                            <i class="bi bi-file-earmark"></i> View attachment
+                                            <i class="bi bi-file-earmark"></i> Zobacz załącznik
                                         </a>
-                                        <small class="text-muted d-block mt-1">Uploading a new file will replace the
-                                            current attachment</small>
+                                        <small class="text-muted d-block mt-1">Przesłanie nowego pliku zastąpi aktualny
+                                            załącznik</small>
                                     </div>
                                     <% } %>
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
                             </div>
                         </form>
                     </div>
