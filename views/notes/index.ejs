@@ -35,7 +35,8 @@
                     <h5 class="m-0 me-2">Filtruj po etykiecie:</h5>
                     <% if ((typeof selectedLabelIds !=='undefined' && selectedLabelIds && selectedLabelIds.length> 0) ||
                         (typeof searchQuery !== 'undefined' && searchQuery && searchQuery.trim() !== '')) { %>
-                        <a href="<%= createUrl('/notes') %>" class="btn btn-sm btn-outline-secondary ms-2">Wyczyść filtry</a>
+                        <a href="<%= createUrl('/notes') %>" class="btn btn-sm btn-outline-secondary ms-2">Wyczyść
+                            filtry</a>
                         <% } %>
                 </div>
                 <form action="<%= createUrl('/notes/filter') %>" method="GET" id="labelFilterForm">
@@ -115,8 +116,8 @@
                                             <div>
                                                 <a href="<%= createUrl('/notes/' + note.id + '/edit') %>"
                                                     class="btn btn-sm btn-outline-secondary me-1">Edytuj</a>
-                                                <form action="<%= createUrl('/notes/' + note.id) %>?_method=DELETE" method="POST"
-                                                    class="d-inline">
+                                                <form action="<%= createUrl('/notes/' + note.id) %>?_method=DELETE"
+                                                    method="POST" class="d-inline">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger"
                                                         onclick="return confirm('Czy na pewno chcesz usunąć tę notatkę?')">Usuń</button>
                                                 </form>
@@ -129,7 +130,8 @@
                     </div>
                     <% } else { %>
                         <div class="alert alert-info">
-                            <p class="m-0">Brak notatek. <a href="<%= createUrl('/notes/new') %>">Dodaj swoją pierwszą notatkę</a>.
+                            <p class="m-0">Brak notatek. <a href="<%= createUrl('/notes/new') %>">Dodaj swoją pierwszą
+                                    notatkę</a>.
                             </p>
                         </div>
                         <% } %>

@@ -23,12 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: true // Can be null for OAuth users
-        },
-        microsoftId: {
-            type: DataTypes.STRING,
-            allowNull: true,
-            unique: true
+            allowNull: false
         },
         isAdmin: {
             type: DataTypes.BOOLEAN,

@@ -20,8 +20,4 @@ router.get('/logout', (req, res) => {
     });
 });
 
-// Microsoft OAuth routes
-router.get('/microsoft', authController.microsoftAuth);
-router.get('/microsoft/callback', authController.microsoftCallback);
-
 module.exports = router;

@@ -11,7 +11,7 @@ Aplikacja webowa do zarządzania notatkami zbudowana przy użyciu Node.js, Expre
 - ✅ Wyświetlanie szczegółów pojedynczej notatki
 - ✅ Eksport notatek do pliku tekstowego
 - ✅ Wyszukiwanie notatek po tytule i treści
-- ✅ Uwierzytelnianie użytkowników (lokalne oraz przez Microsoft)
+- ✅ Uwierzytelnianie użytkowników (lokalne)
 - ✅ Notatki prywatne dla każdego użytkownika
 
 ## Technologie
@@ -21,13 +21,13 @@ Aplikacja webowa do zarządzania notatkami zbudowana przy użyciu Node.js, Expre
 - **Baza danych**: SQLite z Sequelize ORM
 - **Operacje dyskowe**: Upload plików przy użyciu multer
 - **REST API**: Pełne operacje CRUD
-- **Autentykacja**: Passport.js (lokalna oraz Microsoft OAuth)
+- **Autentykacja**: Passport.js (lokalna)
 
 ## Instalacja
 
 ```bash
 # Klonowanie repozytorium
-git clone <url-repozytorium>
+git clone https://github.com/mikolajskalka/notes-manager.git
 cd notes-manager
 
 # Instalacja zależności
@@ -36,11 +36,6 @@ npm install
 # Konfiguracja zmiennych środowiskowych
 # Skopiuj plik .env.example do .env i dostosuj ustawienia
 cp .env.example .env
-
-# Dla integracji z Microsoft OAuth:
-# 1. Zarejestruj aplikację na https://portal.azure.com
-# 2. Dodaj URL przekierowania: http://localhost:3000/auth/microsoft/callback
-# 3. Uzupełnij odpowiednie zmienne w pliku .env
 
 # Uruchomienie aplikacji w trybie developerskim
 npm run dev
@@ -128,4 +123,3 @@ Nie musisz ręcznie ustawiać `BASE_PATH` – jest ona ustawiana automatycznie p
 | GET     | `/auth/register`    | Formularz rejestracji        |
 | POST    | `/auth/register`    | Zarejestruj użytkownika      |
 | GET     | `/auth/logout`      | Wyloguj użytkownika          |
-| GET     | `/auth/microsoft`   | Logowanie przez Microsoft    |

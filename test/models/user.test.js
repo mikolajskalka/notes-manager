@@ -25,7 +25,6 @@ describe('User Model', () => {
         expect(User.rawAttributes).toHaveProperty('username');
         expect(User.rawAttributes).toHaveProperty('email');
         expect(User.rawAttributes).toHaveProperty('password');
-        expect(User.rawAttributes).toHaveProperty('microsoftId');
         expect(User.rawAttributes).toHaveProperty('isAdmin');
 
         // Verify primary key

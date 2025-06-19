@@ -94,15 +94,3 @@ exports.logout = (req, res) => {
         res.redirect(createUrl('/auth/login'));
     });
 };
-
-// Microsoft authentication
-exports.microsoftAuth = passport.authenticate('microsoft', {
-    scope: ['user.read']
-});
-
-exports.microsoftCallback = passport.authenticate('microsoft', {
-    successRedirect: createUrl('/notes'),
-    failureRedirect: createUrl('/auth/login'),
-    failureFlash: true,
-    successFlash: 'Pomyślnie zalogowano przez konto Microsoft!'
-});

@@ -35,8 +35,8 @@
                                             class="btn btn-sm btn-outline-primary">Zobacz notatki</a>
                                         <a href="<%= createUrl('/labels/' + label.id + '/edit') %>"
                                             class="btn btn-sm btn-outline-secondary">Edytuj</a>
-                                        <form action="<%= createUrl('/labels/' + label.id) %>?_method=DELETE" method="POST"
-                                            class="d-inline"
+                                        <form action="<%= createUrl('/labels/' + label.id) %>?_method=DELETE"
+                                            method="POST" class="d-inline"
                                             onsubmit="return confirm('Czy na pewno chcesz usunąć tę etykietę? Usunięcie spowoduje usunięcie etykiety ze wszystkich notatek, ale nie usunie samych notatek.')">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Usuń</button>
                                         </form>
@@ -49,7 +49,8 @@
             </div>
             <% } else { %>
                 <div class="alert alert-info">
-                    <p>Nie znaleziono etykiet. <a href="<%= createUrl('/labels/new') %>">Utwórz pierwszą etykietę</a>.</p>
+                    <p>Nie znaleziono etykiet. <a href="<%= createUrl('/labels/new') %>">Utwórz pierwszą etykietę</a>.
+                    </p>
                 </div>
                 <% } %>
 

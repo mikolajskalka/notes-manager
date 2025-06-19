@@ -59,7 +59,8 @@
                     <a href="<%= createUrl('/notes/' + note.id + '/export') %>" class="btn btn-outline-success">
                         Eksportuj do pliku
                     </a>
-                    <form action="<%= createUrl('/notes/' + note.id) %>?_method=DELETE" method="POST" style="display:inline-block">
+                    <form action="<%= createUrl('/notes/' + note.id) %>?_method=DELETE" method="POST"
+                        style="display:inline-block">
                         <button type="submit" class="btn btn-danger"
                             onclick="return confirm('Na pewno usunąć notatkę?')">
                             Usuń
