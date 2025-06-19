@@ -44,6 +44,9 @@ const { isAuthenticated } = require('./config/passport')(app);
 
 // Make user data available in all templates
 app.use((req, res, next) => {
+    const basePath = process.env.BASE_PATH || '';
+    res.locals.basePath = basePath;
+    req.app.set('basePath', basePath);
     res.locals.currentUser = req.user;
     res.locals.error = req.flash('error');
     res.locals.success = req.flash('success');

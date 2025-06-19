@@ -4,7 +4,7 @@
   "description": "Aplikacja do zarządzania notatkami",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "BASE_PATH=/$PORT node app.js",
     "dev": "nodemon app.js",
     "test": "jest",
     "test:watch": "jest --watch",

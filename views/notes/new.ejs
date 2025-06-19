@@ -4,26 +4,26 @@
         <div class="row">
             <div class="col-md-8 offset-md-2">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>Add New Note</h1>
-                    <a href="/notes" class="btn btn-outline-secondary">Back to List</a>
+                    <h1>Dodaj nową notatkę</h1>
+                    <a href="<%= basePath %>/notes" class="btn btn-outline-secondary">Wróć do listy notatek</a>
                 </div>
 
                 <div class="card">
                     <div class="card-body">
-                        <form action="/notes" method="POST" enctype="multipart/form-data">
+                        <form action="<%= basePath %>/notes" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
-                                <label for="title" class="form-label">Title</label>
+                                <label for="title" class="form-label">Tytuł</label>
                                 <input type="text" class="form-control" id="title" name="title" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="content" class="form-label">Content</label>
+                                <label for="content" class="form-label">Treść</label>
                                 <textarea class="form-control" id="content" name="content" rows="10"
                                     required></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Labels</label>
+                                <label class="form-label">Etykiety</label>
                                 <div class="d-flex flex-wrap gap-2 mb-2" id="label-buttons">
                                     <% if (labels && labels.length> 0) { %>
                                         <% labels.forEach(label=> { %>
@@ -38,22 +38,22 @@
                                             </div>
                                             <% }); %>
                                                 <% } else { %>
-                                                    <p class="text-muted">No labels available.</p>
+                                                    <p class="text-muted">Brak dostępnych etykiet.</p>
                                                     <% } %>
                                 </div>
                                 <div class="form-text">
-                                    Click on labels to select/deselect them.
-                                    <a href="/labels/new" target="_blank">Create new label</a>
+                                    Kliknij na etykiety, aby je wybrać/odznaczyć.
+                                    <a href="/labels/new" target="_blank">Utwórz nową etykietę</a>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="attachment" class="form-label">Attachment (optional)</label>
+                                <label for="attachment" class="form-label">Załącznik (opcjonalnie)</label>
                                 <input class="form-control" type="file" id="attachment" name="attachment">
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Save Note</button>
+                                <button type="submit" class="btn btn-primary">Zapisz notatkę</button>
                             </div>
                         </form>
                     </div>

@@ -53,6 +53,30 @@ Po uruchomieniu, aplikacja będzie dostępna pod adresem: [http://localhost:3000
 - **Tryb produkcyjny**: `npm start`
 - **Tryb developerski (z autoodświeżaniem)**: `npm run dev`
 
+## Automatyczne ustawianie BASE_PATH w zależności od trybu uruchomienia
+
+W tym projekcie skrypt produkcyjny (`npm start`) automatycznie ustawia zmienną środowiskową `BASE_PATH` na wartość odpowiadającą portowi (np. `/12040`), dzięki czemu aplikacja działa poprawnie za reverse proxy pod adresem z prefiksem ścieżki (np. `http://adres-serwera/12040/`).
+
+W trybie developerskim (`npm run dev`) aplikacja uruchamia się standardowo na `localhost:3000` bez żadnego prefiksu ścieżki (`BASE_PATH` nie jest ustawiony).
+
+**Przykład uruchomienia produkcyjnego:**
+
+```bash
+PORT=12040 npm start
+```
+
+Wtedy aplikacja będzie dostępna pod adresem: `http://adres-serwera/12040/`
+
+**Przykład uruchomienia developerskiego:**
+
+```bash
+npm run dev
+```
+
+Wtedy aplikacja będzie dostępna pod adresem: `http://localhost:3000/`
+
+Nie musisz ręcznie ustawiać `BASE_PATH` – jest ona ustawiana automatycznie przez odpowiedni skrypt w zależności od trybu uruchomienia.
+
 ## Struktura projektu
 
 ```

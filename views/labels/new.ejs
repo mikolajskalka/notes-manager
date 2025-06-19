@@ -1,25 +1,25 @@
 <%- contentFor('body') %>
 
     <div class="container mt-4">
-        <h1>Create New Label</h1>
+        <h1>Stwórz nową etykietę</h1>
 
-        <form action="/labels" method="POST">
+        <form action="<%= basePath %>/labels" method="POST">
             <div class="mb-3">
-                <label for="name" class="form-label">Label Name</label>
+                <label for="name" class="form-label">Nazwa etykiety</label>
                 <input type="text" class="form-control" id="name" name="name" required>
-                <div class="form-text">Label names must be unique</div>
+                <div class="form-text">Nazwy etykiet muszą być unikalne</div>
             </div>
 
             <div class="mb-3">
-                <label for="color" class="form-label">Label Color</label>
+                <label for="color" class="form-label">Kolor etykiety</label>
                 <input type="color" class="form-control form-control-color" id="color" name="color" value="#6c757d"
-                    title="Choose a color for the label">
-                <div class="form-text">Select a color to visually identify this label</div>
+                    title="Wybierz kolor dla etykiety">
+                <div class="form-text">Wybierz kolor, aby wizualnie zidentyfikować tę etykietę</div>
             </div>
 
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Create Label</button>
-                <a href="/labels" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Utwórz etykietę</button>
+                <a href="<%= basePath %>/labels" class="btn btn-outline-secondary">Anuluj</a>
             </div>
         </form>
     </div>
