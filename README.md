@@ -43,6 +43,8 @@ npm run dev
 
 Po uruchomieniu, aplikacja będzie dostępna pod adresem: [http://localhost:3000](http://localhost:3000)
 
+**Publiczna wersja aplikacji jest dostępna pod adresem: [http://149.156.43.57/12040/](http://149.156.43.57/12040/)**
+
 ## Uruchamianie
 
 - **Tryb produkcyjny**: `npm start`
