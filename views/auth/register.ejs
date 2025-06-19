@@ -11,7 +11,7 @@
                     </div>
                     <% } %>
 
-                        <form action="/auth/register" method="POST">
+                        <form action="<%= createUrl('/auth/register') %>" method="POST">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Nazwa użytkownika</label>
                                 <input type="text" class="form-control" id="username" name="username" required>
@@ -46,7 +46,7 @@
                         </form>
             </div>
             <div class="card-footer text-center">
-                Masz już konto? <a href="/auth/login">Zaloguj się</a>
+                Masz już konto? <a href="<%= createUrl('/auth/login') %>">Zaloguj się</a>
             </div>
         </div>
     </div>

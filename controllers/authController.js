@@ -2,6 +2,7 @@ const passport = require('passport');
 const bcrypt = require('bcryptjs');
 const db = require('../models');
 const User = db.User;
+const { createUrl } = require('../utils/urlHelper');
 
 // Display login form
 exports.loginForm = (req, res) => {
@@ -19,13 +20,13 @@ exports.login = (req, res, next) => {
         }
         if (!user) {
             req.flash('error', info.message || 'Nieprawidłowe dane logowania');
-            return res.redirect('/auth/login');
+            return res.redirect(createUrl('/auth/login'));
         }
         req.logIn(user, (err) => {
             if (err) {
                 return next(err);
             }
-            res.redirect('/notes');
+            res.redirect(createUrl('/notes'));
         });
     })(req, res, next);
 };
@@ -45,7 +46,7 @@ exports.register = async (req, res) => {
         // Validation
         if (password !== confirmPassword) {
             req.flash('error', 'Hasła nie są zgodne');
-            return res.redirect('/auth/register');
+            return res.redirect(createUrl('/auth/register'));
         }
 
         // Check if user already exists
@@ -60,7 +61,7 @@ exports.register = async (req, res) => {
 
         if (existingUser) {
             req.flash('error', 'Użytkownik o podanym loginie lub adresie email już istnieje');
-            return res.redirect('/auth/register');
+            return res.redirect(createUrl('/auth/register'));
         }
 
         // Hash password
@@ -74,11 +75,11 @@ exports.register = async (req, res) => {
         });
 
         req.flash('success', 'Konto zostało utworzone. Możesz się teraz zalogować.');
-        res.redirect('/auth/login');
+        res.redirect(createUrl('/auth/login'));
     } catch (err) {
         console.error(err);
         req.flash('error', 'Wystąpił błąd podczas rejestracji');
-        res.redirect('/auth/register');
+        res.redirect(createUrl('/auth/register'));
     }
 };
 
@@ -87,10 +88,10 @@ exports.logout = (req, res) => {
     req.logout((err) => {
         if (err) {
             console.error(err);
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
         req.flash('success', 'Wylogowano pomyślnie');
-        res.redirect('/auth/login');
+        res.redirect(createUrl('/auth/login'));
     });
 };
 
@@ -100,8 +101,8 @@ exports.microsoftAuth = passport.authenticate('microsoft', {
 });
 
 exports.microsoftCallback = passport.authenticate('microsoft', {
-    successRedirect: '/notes',
-    failureRedirect: '/auth/login',
+    successRedirect: createUrl('/notes'),
+    failureRedirect: createUrl('/auth/login'),
     failureFlash: true,
     successFlash: 'Pomyślnie zalogowano przez konto Microsoft!'
 });

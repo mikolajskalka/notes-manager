@@ -1,6 +1,6 @@
 const express = require('express');
 const request = require('supertest');
-const { Note } = require('../../models');
+const { Note, Label } = require('../../models');
 const fs = require('fs');
 const path = require('path');
 
@@ -11,6 +11,12 @@ jest.mock('../../models', () => ({
         findOne: jest.fn(),
         create: jest.fn(),
         destroy: jest.fn()
+    },
+    Label: {
+        findAll: jest.fn()
+    },
+    NoteLabel: {
+        findAll: jest.fn()
     },
     Sequelize: {
         Op: {
@@ -50,6 +56,8 @@ const setupApp = () => {
     // Mock auth middleware - all users authenticated with id=1
     app.use((req, res, next) => {
         req.user = { id: 1 };
+        req.isAuthenticated = jest.fn().mockReturnValue(true);
+        req.flash = jest.fn();
         next();
     });
 
@@ -83,9 +91,14 @@ describe('Notes Routes', () => {
                 { id: 1, title: 'Note 1', content: 'Content 1', userId: 1 },
                 { id: 2, title: 'Note 2', content: 'Content 2', userId: 1 }
             ];
+            const labels = [
+                { id: 1, name: 'Label 1' },
+                { id: 2, name: 'Label 2' }
+            ];
 
-            // Mock the findAll method
+            // Mock the findAll methods
             Note.findAll.mockResolvedValue(notes);
+            Label.findAll.mockResolvedValue(labels);
 
             // Make request
             const response = await request(app).get('/notes');
@@ -94,6 +107,7 @@ describe('Notes Routes', () => {
             expect(response.statusCode).toBe(200);
             expect(Note.findAll).toHaveBeenCalledWith({
                 where: { userId: 1 },
+                include: [Label],
                 order: [['updatedAt', 'DESC']]
             });
 
@@ -109,13 +123,13 @@ describe('Notes Routes', () => {
 
             // Mock findAll to throw an error
             Note.findAll.mockRejectedValue(new Error('Database error'));
+            Label.findAll.mockResolvedValue([]); // Mock labels to succeed
 
             // Make request
             const response = await request(app).get('/notes');
 
             // Assertions
-            expect(response.statusCode).toBe(500);
-            expect(response.text).toBe('Server error');
+            expect(response.statusCode).toBe(302); // Should redirect to /notes due to error handling
             expect(console.error).toHaveBeenCalled();
         });
     });
@@ -129,6 +143,7 @@ describe('Notes Routes', () => {
 
             // Mock the findAll method
             Note.findAll.mockResolvedValue(notes);
+            Label.findAll.mockResolvedValue([]);
 
             // Make request
             const response = await request(app).get('/notes/search?query=search term');
@@ -166,6 +181,7 @@ describe('Notes Routes', () => {
 
             // Mock the findOne method
             Note.findOne.mockResolvedValue(note);
+            Label.findAll.mockResolvedValue([]);
 
             // Make request
             const response = await request(app).get('/notes/1');
@@ -176,7 +192,8 @@ describe('Notes Routes', () => {
                 where: {
                     id: "1",
                     userId: 1
-                }
+                },
+                include: [Label]
             });
 
             // Verify response contains note data
@@ -188,13 +205,14 @@ describe('Notes Routes', () => {
         test('should return 404 if note is not found', async () => {
             // Mock findOne to return null
             Note.findOne.mockResolvedValue(null);
+            Label.findAll.mockResolvedValue([]);
 
             // Make request
             const response = await request(app).get('/notes/999');
 
-            // Assertions
-            expect(response.statusCode).toBe(404);
-            expect(response.text).toBe('Notatka nie została znaleziona');
+            // Assertions - the route redirects to /notes when note is not found
+            expect(response.statusCode).toBe(302);
+            expect(response.headers.location).toBe('/notes');
         });
     });
 

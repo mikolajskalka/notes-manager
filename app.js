@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
 const flash = require('connect-flash');
+const { createUrl } = require('./utils/urlHelper');
 
 // Import routes
 const notesRoutes = require('./routes/notes');
@@ -17,6 +18,9 @@ const labelsRoutes = require('./routes/labels');
 // Initialize app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configure app to work behind a reverse proxy
+app.set('trust proxy', true);
 
 // Set up view engine
 app.set('view engine', 'ejs');
@@ -47,6 +51,8 @@ app.use((req, res, next) => {
     res.locals.currentUser = req.user;
     res.locals.error = req.flash('error');
     res.locals.success = req.flash('success');
+    res.locals.basePath = process.env.BASE_PATH || ''; // Make base path available in templates
+    res.locals.createUrl = createUrl; // Make URL helper available in templates
     next();
 });
 
@@ -58,9 +64,9 @@ app.use('/labels', isAuthenticated, labelsRoutes); // Protect labels routes
 // Home route
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect('/notes');
+        return res.redirect(createUrl('/notes'));
     }
-    res.redirect('/auth/login');
+    res.redirect(createUrl('/auth/login'));
 });
 
 // Initialize database and start server

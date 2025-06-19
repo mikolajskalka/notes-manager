@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Label, Note } = require('../models');
 const { isAuthenticated } = require('../config/passport');
+const { createUrl } = require('../utils/urlHelper');
 
 // Get all labels
 router.get('/', isAuthenticated, async (req, res) => {
@@ -14,7 +15,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     } catch (error) {
         console.error('Error fetching labels:', error);
         req.flash('error', 'An error occurred while fetching labels.');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -30,7 +31,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 
         if (!name || name.trim() === '') {
             req.flash('error', 'Label name cannot be empty.');
-            return res.redirect('/labels/new');
+            return res.redirect(createUrl('/labels/new'));
         }
 
         // Check if label already exists for this user
@@ -43,7 +44,7 @@ router.post('/', isAuthenticated, async (req, res) => {
 
         if (existingLabel) {
             req.flash('error', 'A label with this name already exists.');
-            return res.redirect('/labels/new');
+            return res.redirect(createUrl('/labels/new'));
         }
 
         await Label.create({
@@ -52,11 +53,11 @@ router.post('/', isAuthenticated, async (req, res) => {
             userId: req.user.id // Associate with the current user
         });
         req.flash('success', 'Label created successfully.');
-        res.redirect('/labels');
+        res.redirect(createUrl('/labels'));
     } catch (error) {
         console.error('Error creating label:', error);
         req.flash('error', 'An error occurred while creating the label.');
-        res.redirect('/labels/new');
+        res.redirect(createUrl('/labels/new'));
     }
 });
 
@@ -72,14 +73,14 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            return res.redirect(createUrl('/labels'));
         }
 
         res.render('labels/edit', { label });
     } catch (error) {
         console.error('Error fetching label for edit:', error);
         req.flash('error', 'An error occurred while fetching the label.');
-        res.redirect('/labels');
+        res.redirect(createUrl('/labels'));
     }
 });
 
@@ -90,7 +91,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 
         if (!name || name.trim() === '') {
             req.flash('error', 'Label name cannot be empty.');
-            return res.redirect(`/labels/${req.params.id}/edit`);
+            return res.redirect(createUrl(`/labels/${req.params.id}/edit`));
         }
 
         const label = await Label.findOne({
@@ -102,7 +103,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            return res.redirect(createUrl('/labels'));
         }
 
         // Check if new name already exists for this user (excluding the current label)
@@ -116,7 +117,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
 
         if (existingLabel) {
             req.flash('error', 'A label with this name already exists.');
-            return res.redirect(`/labels/${req.params.id}/edit`);
+            return res.redirect(createUrl(`/labels/${req.params.id}/edit`));
         }
 
         await label.update({
@@ -124,11 +125,11 @@ router.put('/:id', isAuthenticated, async (req, res) => {
             color: color || label.color // Update color only if new color is provided
         });
         req.flash('success', 'Label updated successfully.');
-        res.redirect('/labels');
+        res.redirect(createUrl('/labels'));
     } catch (error) {
         console.error('Error updating label:', error);
         req.flash('error', 'An error occurred while updating the label.');
-        res.redirect(`/labels/${req.params.id}/edit`);
+        res.redirect(createUrl(`/labels/${req.params.id}/edit`));
     }
 });
 
@@ -144,16 +145,16 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            return res.redirect(createUrl('/labels'));
         }
 
         await label.destroy();
         req.flash('success', 'Label deleted successfully.');
-        res.redirect('/labels');
+        res.redirect(createUrl('/labels'));
     } catch (error) {
         console.error('Error deleting label:', error);
         req.flash('error', 'An error occurred while deleting the label.');
-        res.redirect('/labels');
+        res.redirect(createUrl('/labels'));
     }
 });
 
@@ -173,14 +174,14 @@ router.get('/:id/notes', isAuthenticated, async (req, res) => {
 
         if (!label) {
             req.flash('error', 'Label not found.');
-            return res.redirect('/labels');
+            return res.redirect(createUrl('/labels'));
         }
 
         res.render('labels/notes', { label, notes: label.Notes });
     } catch (error) {
         console.error('Error fetching notes by label:', error);
         req.flash('error', 'An error occurred while fetching notes.');
-        res.redirect('/labels');
+        res.redirect(createUrl('/labels'));
     }
 });
 

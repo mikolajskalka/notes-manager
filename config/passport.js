@@ -4,6 +4,7 @@ const MicrosoftStrategy = require('passport-microsoft').Strategy;
 const bcrypt = require('bcryptjs');
 const db = require('../models');
 const User = db.User;
+const { createUrl } = require('../utils/urlHelper');
 
 // Auth middleware to check if user is logged in
 const isAuthenticated = (req, res, next) => {
@@ -11,7 +12,7 @@ const isAuthenticated = (req, res, next) => {
         return next();
     }
     req.flash('error', 'You must be logged in to access this page');
-    res.redirect('/auth/login');
+    res.redirect(createUrl('/auth/login'));
 };
 
 module.exports = (app) => {

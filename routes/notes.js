@@ -6,6 +6,7 @@ const fs = require('fs');
 const db = require('../models');
 const { Note, Label, NoteLabel } = db;
 const { isAuthenticated } = require('../config/passport');
+const { createUrl } = require('../utils/urlHelper');
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -55,9 +56,9 @@ router.get('/search', isAuthenticated, async (req, res) => {
         if (!query || query.trim() === '') {
             // If there are label filters but no query, redirect to label filter
             if (labelIds) {
-                return res.redirect(`/notes/filter?${new URLSearchParams(req.query).toString()}`);
+                return res.redirect(createUrl(`/notes/filter?${new URLSearchParams(req.query).toString()}`));
             }
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         const searchQuery = query.trim();
@@ -159,7 +160,7 @@ router.get('/label/:labelId', isAuthenticated, async (req, res) => {
 
         if (noteIds.length === 0) {
             req.flash('error', 'No notes found with this label');
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         // Step 2: Get these notes with ALL their labels
@@ -180,7 +181,7 @@ router.get('/label/:labelId', isAuthenticated, async (req, res) => {
 
         if (!selectedLabel) {
             req.flash('error', 'Label not found');
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         res.render('notes/index', {
@@ -192,7 +193,7 @@ router.get('/label/:labelId', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error(err);
         req.flash('error', 'Server error');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -204,9 +205,9 @@ router.get('/filter', isAuthenticated, async (req, res) => {
         // If no labels are selected, redirect to the main search or notes page
         if (!labelIds) {
             if (query) {
-                return res.redirect(`/notes/search?query=${encodeURIComponent(query)}`);
+                return res.redirect(createUrl(`/notes/search?query=${encodeURIComponent(query)}`));
             }
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         // Convert to array if only one label is selected
@@ -289,7 +290,7 @@ router.get('/filter', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Error filtering notes by labels:', err);
         req.flash('error', 'An error occurred while filtering notes');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -309,7 +310,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error(err);
         req.flash('error', 'Server error');
-        res.redirect('/');
+        res.redirect(createUrl('/'));
     }
 });
 
@@ -325,7 +326,7 @@ router.get('/new', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error(err);
         req.flash('error', 'Server error');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -334,12 +335,12 @@ router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) 
     try {
         if (!req.body) {
             req.flash('error', 'Brak danych formularza.');
-            return res.redirect('/notes/new');
+            return res.redirect(createUrl('/notes/new'));
         }
         const { title, content, labelIds } = req.body;
         if (!title || !content) {
             req.flash('error', 'Tytuł i treść są wymagane.');
-            return res.redirect('/notes/new');
+            return res.redirect(createUrl('/notes/new'));
         }
 
         // Create the note without labels first
@@ -367,11 +368,11 @@ router.post('/', isAuthenticated, upload.single('attachment'), async (req, res) 
         }
 
         req.flash('success', 'Notatka została dodana!');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     } catch (err) {
         console.error(err);
         req.flash('error', 'Błąd podczas dodawania notatki');
-        res.redirect('/notes/new');
+        res.redirect(createUrl('/notes/new'));
     }
 });
 
@@ -388,14 +389,14 @@ router.get('/:id', isAuthenticated, async (req, res) => {
 
         if (!note) {
             req.flash('error', 'Note not found');
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         res.render('notes/show', { note });
     } catch (err) {
         console.error('Error fetching note:', err);
         req.flash('error', 'Server error');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -413,7 +414,7 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
 
         if (!note) {
             req.flash('error', 'Note not found');
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         // Get all available labels for the current user only
@@ -426,7 +427,7 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Error fetching note for edit:', err);
         req.flash('error', 'Server error');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -442,7 +443,7 @@ router.put('/:id', isAuthenticated, upload.single('attachment'), async (req, res
 
         if (!note) {
             req.flash('error', 'Note not found');
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         const { title, content, labelIds } = req.body;
@@ -490,11 +491,11 @@ router.put('/:id', isAuthenticated, upload.single('attachment'), async (req, res
         }
 
         req.flash('success', 'Notatka została zaktualizowana!');
-        res.redirect('/notes/' + req.params.id);
+        res.redirect(createUrl('/notes/' + req.params.id));
     } catch (err) {
         console.error(err);
         req.flash('error', 'Błąd podczas edycji notatki');
-        res.redirect('/notes/' + req.params.id + '/edit');
+        res.redirect(createUrl('/notes/' + req.params.id + '/edit'));
     }
 });
 
@@ -522,11 +523,11 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
 
         await note.destroy();
         req.flash('success', 'Notatka została usunięta!');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     } catch (err) {
         console.error(err);
         req.flash('error', 'Błąd podczas usuwania notatki');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
@@ -543,7 +544,7 @@ router.get('/:id/export', isAuthenticated, async (req, res) => {
 
         if (!note) {
             req.flash('error', 'Note not found');
-            return res.redirect('/notes');
+            return res.redirect(createUrl('/notes'));
         }
 
         // Create a sanitized file name from the note title
@@ -570,7 +571,7 @@ router.get('/:id/export', isAuthenticated, async (req, res) => {
             if (err) {
                 console.error('Error sending file:', err);
                 req.flash('error', 'Error exporting note');
-                return res.redirect(`/notes/${note.id}`);
+                return res.redirect(createUrl(`/notes/${note.id}`));
             }
 
             // Delete file after download asynchronously
@@ -583,7 +584,7 @@ router.get('/:id/export', isAuthenticated, async (req, res) => {
     } catch (err) {
         console.error('Error exporting note:', err);
         req.flash('error', 'Server error');
-        res.redirect('/notes');
+        res.redirect(createUrl('/notes'));
     }
 });
 
