@@ -36,9 +36,9 @@ describe('Attachment URLs with Reverse Proxy', () => {
             process.env.BASE_PATH = '/8080';
 
             expect(createUrl('/uploads/image.jpg')).toBe('/8080/uploads/image.jpg');
-            
+
             process.env.BASE_PATH = '/reverse-proxy';
-            
+
             expect(createUrl('/uploads/file.txt')).toBe('/reverse-proxy/uploads/file.txt');
         });
 
@@ -56,13 +56,13 @@ describe('Attachment URLs with Reverse Proxy', () => {
 
             // Read the show.ejs template
             const showTemplate = fs.readFileSync(
-                path.join(__dirname, '../../views/notes/show.ejs'), 
+                path.join(__dirname, '../../views/notes/show.ejs'),
                 'utf8'
             );
 
             // Read the edit.ejs template
             const editTemplate = fs.readFileSync(
-                path.join(__dirname, '../../views/notes/edit.ejs'), 
+                path.join(__dirname, '../../views/notes/edit.ejs'),
                 'utf8'
             );
 
