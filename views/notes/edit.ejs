@@ -63,7 +63,7 @@
                                 <% if (note.attachment) { %>
                                     <div class="mt-2">
                                         <p class="mb-1">Aktualny załącznik:</p>
-                                        <a href="<%= note.attachment %>" target="_blank" class="text-decoration-none">
+                                        <a href="<%= createUrl(note.attachment) %>" target="_blank" class="text-decoration-none">
                                             <i class="bi bi-file-earmark"></i> Zobacz załącznik
                                         </a>
                                         <small class="text-muted d-block mt-1">Przesłanie nowego pliku zastąpi aktualny
