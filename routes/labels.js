@@ -14,7 +14,7 @@ router.get('/', isAuthenticated, async (req, res) => {
         res.render('labels/index', { labels });
     } catch (error) {
         console.error('Error fetching labels:', error);
-        req.flash('error', 'An error occurred while fetching labels.');
+        req.flash('error', 'Wystąpił błąd podczas pobierania etykiet.');
         res.redirect(createUrl('/notes'));
     }
 });
@@ -30,7 +30,7 @@ router.post('/', isAuthenticated, async (req, res) => {
         const { name, color } = req.body;
 
         if (!name || name.trim() === '') {
-            req.flash('error', 'Label name cannot be empty.');
+            req.flash('error', 'Nazwa etykiety nie może być pusta.');
             return res.redirect(createUrl('/labels/new'));
         }
 
@@ -43,7 +43,7 @@ router.post('/', isAuthenticated, async (req, res) => {
         });
 
         if (existingLabel) {
-            req.flash('error', 'A label with this name already exists.');
+            req.flash('error', 'Etykieta o tej nazwie już istnieje.');
             return res.redirect(createUrl('/labels/new'));
         }
 
@@ -52,11 +52,11 @@ router.post('/', isAuthenticated, async (req, res) => {
             color: color || '#6c757d', // Use provided color or default
             userId: req.user.id // Associate with the current user
         });
-        req.flash('success', 'Label created successfully.');
+        req.flash('success', 'Etykieta została utworzona pomyślnie.');
         res.redirect(createUrl('/labels'));
     } catch (error) {
         console.error('Error creating label:', error);
-        req.flash('error', 'An error occurred while creating the label.');
+        req.flash('error', 'Wystąpił błąd podczas tworzenia etykiety.');
         res.redirect(createUrl('/labels/new'));
     }
 });
@@ -72,14 +72,14 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
         });
 
         if (!label) {
-            req.flash('error', 'Label not found.');
+            req.flash('error', 'Etykieta nie została znaleziona.');
             return res.redirect(createUrl('/labels'));
         }
 
         res.render('labels/edit', { label });
     } catch (error) {
         console.error('Error fetching label for edit:', error);
-        req.flash('error', 'An error occurred while fetching the label.');
+        req.flash('error', 'Wystąpił błąd podczas pobierania etykiety.');
         res.redirect(createUrl('/labels'));
     }
 });
@@ -90,7 +90,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
         const { name, color } = req.body;
 
         if (!name || name.trim() === '') {
-            req.flash('error', 'Label name cannot be empty.');
+            req.flash('error', 'Nazwa etykiety nie może być pusta.');
             return res.redirect(createUrl(`/labels/${req.params.id}/edit`));
         }
 
@@ -102,7 +102,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
         });
 
         if (!label) {
-            req.flash('error', 'Label not found.');
+            req.flash('error', 'Etykieta nie została znaleziona.');
             return res.redirect(createUrl('/labels'));
         }
 
@@ -116,7 +116,7 @@ router.put('/:id', isAuthenticated, async (req, res) => {
         });
 
         if (existingLabel) {
-            req.flash('error', 'A label with this name already exists.');
+            req.flash('error', 'Etykieta o tej nazwie już istnieje.');
             return res.redirect(createUrl(`/labels/${req.params.id}/edit`));
         }
 
@@ -124,11 +124,11 @@ router.put('/:id', isAuthenticated, async (req, res) => {
             name: name.trim(),
             color: color || label.color // Update color only if new color is provided
         });
-        req.flash('success', 'Label updated successfully.');
+        req.flash('success', 'Etykieta została zaktualizowana pomyślnie.');
         res.redirect(createUrl('/labels'));
     } catch (error) {
         console.error('Error updating label:', error);
-        req.flash('error', 'An error occurred while updating the label.');
+        req.flash('error', 'Wystąpił błąd podczas aktualizacji etykiety.');
         res.redirect(createUrl(`/labels/${req.params.id}/edit`));
     }
 });
@@ -144,16 +144,16 @@ router.delete('/:id', isAuthenticated, async (req, res) => {
         });
 
         if (!label) {
-            req.flash('error', 'Label not found.');
+            req.flash('error', 'Etykieta nie została znaleziona.');
             return res.redirect(createUrl('/labels'));
         }
 
         await label.destroy();
-        req.flash('success', 'Label deleted successfully.');
+        req.flash('success', 'Etykieta została usunięta pomyślnie.');
         res.redirect(createUrl('/labels'));
     } catch (error) {
         console.error('Error deleting label:', error);
-        req.flash('error', 'An error occurred while deleting the label.');
+        req.flash('error', 'Wystąpił błąd podczas usuwania etykiety.');
         res.redirect(createUrl('/labels'));
     }
 });
@@ -173,14 +173,14 @@ router.get('/:id/notes', isAuthenticated, async (req, res) => {
         });
 
         if (!label) {
-            req.flash('error', 'Label not found.');
+            req.flash('error', 'Etykieta nie została znaleziona.');
             return res.redirect(createUrl('/labels'));
         }
 
         res.render('labels/notes', { label, notes: label.Notes });
     } catch (error) {
         console.error('Error fetching notes by label:', error);
-        req.flash('error', 'An error occurred while fetching notes.');
+        req.flash('error', 'Wystąpił błąd podczas pobierania notatek.');
         res.redirect(createUrl('/labels'));
     }
 });

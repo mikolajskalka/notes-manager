@@ -86,6 +86,21 @@
         .fullscreen-close:hover {
             background: rgba(255, 255, 255, 1);
         }
+
+        /* Custom file upload styles */
+        .custom-file-upload {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .custom-file-upload button {
+            white-space: nowrap;
+        }
+
+        .custom-file-upload span {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 
@@ -163,7 +178,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Fullscreen modal for attachments -->
     <div id="fullscreenModal" class="fullscreen-modal">
         <button class="fullscreen-close" onclick="closeFullscreen()">&times;</button>
@@ -176,19 +191,19 @@
             const modal = document.getElementById('fullscreenModal');
             const content = document.getElementById('fullscreenContent');
             const previewContainer = document.querySelector('.preview-container');
-            
+
             if (!previewContainer) return;
-            
+
             const mediaElement = previewContainer.querySelector('img, iframe');
             if (!mediaElement) return;
-            
+
             // Clear previous content
             content.innerHTML = '';
-            
+
             // Clone the media element for fullscreen
             const fullscreenElement = mediaElement.cloneNode(true);
             fullscreenElement.className = 'fullscreen-content';
-            
+
             // For images, make them responsive in fullscreen
             if (fullscreenElement.tagName === 'IMG') {
                 fullscreenElement.style.width = 'auto';
@@ -197,16 +212,16 @@
                 fullscreenElement.style.maxHeight = '95vh';
                 fullscreenElement.onclick = null; // Remove click handler
             }
-            
+
             // For iframes (PDFs), adjust size
             if (fullscreenElement.tagName === 'IFRAME') {
                 fullscreenElement.style.width = '95vw';
                 fullscreenElement.style.height = '95vh';
             }
-            
+
             content.appendChild(fullscreenElement);
             modal.style.display = 'flex';
-            
+
             // Close on Escape key
             document.addEventListener('keydown', function escHandler(e) {
                 if (e.key === 'Escape') {
@@ -214,15 +229,15 @@
                     document.removeEventListener('keydown', escHandler);
                 }
             });
-            
+
             // Close on click outside content
-            modal.onclick = function(e) {
+            modal.onclick = function (e) {
                 if (e.target === modal) {
                     closeFullscreen();
                 }
             };
         }
-        
+
         function closeFullscreen() {
             const modal = document.getElementById('fullscreenModal');
             modal.style.display = 'none';

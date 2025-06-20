@@ -47,148 +47,177 @@
                                     <div class="mt-4">
                                         <h5>Załącznik:</h5>
                                         <div class="attachment-preview">
-                                            <%
-                                                // Extract file extension for preview logic
-                                                const fileExtension = note.attachment.split('.').pop().toLowerCase();
-                                                const fileName = note.attachment.split('/').pop();
-                                                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension);
-                                                const isPdf = fileExtension === 'pdf';
-                                                const isVideo = ['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(fileExtension);
-                                                const isAudio = ['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(fileExtension);
-                                                const isText = ['txt', 'md', 'csv', 'json', 'xml', 'html', 'css', 'js', 'ts', 'py', 'java', 'cpp', 'c', 'h'].includes(fileExtension);
-                                                const isDocument = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExtension);
-                                            %>
-                                            
-                                            <!-- File info header -->
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <div class="file-info">
-                                                    <strong><%= fileName %></strong>
-                                                    <span class="text-muted ms-2">(<%= fileExtension.toUpperCase() %>)</span>
-                                                    <%
-                                                        // Try to get file size if possible
-                                                        let fileSize = '';
-                                                        try {
-                                                            const filePath = require('path').join(__dirname, '../../public', note.attachment);
-                                                            const fs = require('fs');
-                                                            if (fs.existsSync(filePath)) {
-                                                                const stats = fs.statSync(filePath);
-                                                                const bytes = stats.size;
-                                                                if (bytes === 0) {
-                                                                    fileSize = '0 Bytes';
-                                                                } else {
-                                                                    const k = 1024;
-                                                                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                                                                    const i = Math.floor(Math.log(bytes) / Math.log(k));
-                                                                    fileSize = parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-                                                                }
-                                                            }
-                                                        } catch (e) {
-                                                            // Ignore errors, just don't show file size
-                                                        }
-                                                    %>
-                                                    <% if (fileSize) { %>
-                                                        <br><small class="text-muted">Rozmiar: <%= fileSize %></small>
-                                                    <% } %>
-                                                </div>
-                                                <a href="<%= createUrl(note.attachment) %>"
-                                                    class="btn btn-sm btn-outline-secondary" target="_blank" download>
-                                                    <i class="bi bi-download"></i> Pobierz
-                                                </a>
-                                            </div>
+                                            <% // Extract file extension for preview logic const
+                                                fileExtension=note.attachment.split('.').pop().toLowerCase(); const
+                                                fileName=note.attachment.split('/').pop(); const isImage=['jpg', 'jpeg'
+                                                , 'png' , 'gif' , 'bmp' , 'webp' , 'svg' ].includes(fileExtension);
+                                                const isPdf=fileExtension==='pdf' ; const isVideo=['mp4', 'webm' , 'ogg'
+                                                , 'avi' , 'mov' ].includes(fileExtension); const isAudio=['mp3', 'wav'
+                                                , 'ogg' , 'aac' , 'flac' ].includes(fileExtension); const
+                                                isText=['txt', 'md' , 'csv' , 'json' , 'xml' , 'html' , 'css' , 'js'
+                                                , 'ts' , 'py' , 'java' , 'cpp' , 'c' , 'h' ].includes(fileExtension);
+                                                const isDocument=['doc', 'docx' , 'xls' , 'xlsx' , 'ppt' , 'pptx'
+                                                ].includes(fileExtension); %>
 
-                                            <!-- Preview based on file type -->
-                                            <div class="preview-container border rounded p-3 mb-3" style="max-height: 500px; overflow: auto;">
-                                                <% if (isImage) { %>
-                                                    <!-- Image preview -->
-                                                    <div class="text-center">
-                                                        <img src="<%= createUrl(note.attachment) %>" 
-                                                             alt="<%= fileName %>" 
-                                                             class="img-fluid rounded shadow-sm"
-                                                             style="max-height: 400px; cursor: pointer;"
-                                                             onclick="window.open('<%= createUrl(note.attachment) %>', '_blank')">
-                                                        <p class="text-muted mt-2 mb-0"><small>Kliknij aby powiększyć</small></p>
+                                                <!-- File info header -->
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="file-info">
+                                                        <strong>
+                                                            <%= fileName %>
+                                                        </strong>
+                                                        <span class="text-muted ms-2">(<%= fileExtension.toUpperCase()
+                                                                %>)</span>
+                                                        <% // Try to get file size if possible let fileSize='' ; try {
+                                                            const
+                                                            filePath=require('path').join(__dirname, '../../public' ,
+                                                            note.attachment); const fs=require('fs'); if
+                                                            (fs.existsSync(filePath)) { const
+                                                            stats=fs.statSync(filePath); const bytes=stats.size; if
+                                                            (bytes===0) { fileSize='0 Bytes' ; } else { const k=1024;
+                                                            const sizes=['Bytes', 'KB' , 'MB' , 'GB' ]; const
+                                                            i=Math.floor(Math.log(bytes) / Math.log(k));
+                                                            fileSize=parseFloat((bytes / Math.pow(k, i)).toFixed(2))
+                                                            + ' ' + sizes[i]; } } } catch (e) { // Ignore errors, just
+                                                            don't show file size } %>
+                                                            <% if (fileSize) { %>
+                                                                <br><small class="text-muted">Rozmiar: <%= fileSize %>
+                                                                        </small>
+                                                                <% } %>
                                                     </div>
-                                                <% } else if (isPdf) { %>
-                                                    <!-- PDF preview -->
-                                                    <div class="text-center">
-                                                        <iframe src="<%= createUrl(note.attachment) %>" 
-                                                                width="100%" 
-                                                                height="400px"
-                                                                class="border rounded">
-                                                        </iframe>
-                                                        <p class="text-muted mt-2 mb-0"><small>Podgląd PDF</small></p>
-                                                    </div>
-                                                <% } else if (isVideo) { %>
-                                                    <!-- Video preview -->
-                                                    <div class="text-center">
-                                                        <video controls style="max-width: 100%; max-height: 400px;" class="rounded">
-                                                            <source src="<%= createUrl(note.attachment) %>" type="video/<%= fileExtension %>">
-                                                            Twoja przeglądarka nie obsługuje odtwarzania wideo.
-                                                        </video>
-                                                    </div>
-                                                <% } else if (isAudio) { %>
-                                                    <!-- Audio preview -->
-                                                    <div class="text-center">
-                                                        <div class="mb-3">
-                                                            <i class="bi bi-music-note-beamed" style="font-size: 3rem; color: #6c757d;"></i>
+                                                    <a href="<%= createUrl(note.attachment) %>"
+                                                        class="btn btn-sm btn-outline-secondary" target="_blank"
+                                                        download>
+                                                        <i class="bi bi-download"></i> Pobierz
+                                                    </a>
+                                                </div>
+
+                                                <!-- Preview based on file type -->
+                                                <div class="preview-container border rounded p-3 mb-3"
+                                                    style="max-height: 500px; overflow: auto;">
+                                                    <% if (isImage) { %>
+                                                        <!-- Image preview -->
+                                                        <div class="text-center">
+                                                            <img src="<%= createUrl(note.attachment) %>"
+                                                                alt="<%= fileName %>"
+                                                                class="img-fluid rounded shadow-sm"
+                                                                style="max-height: 400px; cursor: pointer;"
+                                                                onclick="window.open('<%= createUrl(note.attachment) %>', '_blank')">
+                                                            <p class="text-muted mt-2 mb-0"><small>Kliknij aby
+                                                                    powiększyć</small></p>
                                                         </div>
-                                                        <audio controls style="width: 100%; max-width: 400px;">
-                                                            <source src="<%= createUrl(note.attachment) %>" type="audio/<%= fileExtension %>">
-                                                            Twoja przeglądarka nie obsługuje odtwarzania audio.
-                                                        </audio>
-                                                    </div>
-                                                <% } else if (isText) { %>
-                                                    <!-- Text file preview placeholder -->
-                                                    <div class="text-center">
-                                                        <div class="mb-3">
-                                                            <i class="bi bi-file-text" style="font-size: 3rem; color: #6c757d;"></i>
-                                                        </div>
-                                                        <p class="text-muted">Plik tekstowy - <%= fileExtension.toUpperCase() %></p>
-                                                        <a href="<%= createUrl(note.attachment) %>" 
-                                                           class="btn btn-sm btn-outline-primary" target="_blank">
-                                                            <i class="bi bi-eye"></i> Otwórz w nowej karcie
-                                                        </a>
-                                                    </div>
-                                                <% } else if (isDocument) { %>
-                                                    <!-- Document preview -->
-                                                    <div class="text-center">
-                                                        <div class="mb-3">
-                                                            <% if (fileExtension.includes('doc')) { %>
-                                                                <i class="bi bi-file-word" style="font-size: 3rem; color: #2b579a;"></i>
-                                                            <% } else if (fileExtension.includes('xls')) { %>
-                                                                <i class="bi bi-file-excel" style="font-size: 3rem; color: #217346;"></i>
-                                                            <% } else if (fileExtension.includes('ppt')) { %>
-                                                                <i class="bi bi-file-ppt" style="font-size: 3rem; color: #d24726;"></i>
-                                                            <% } %>
-                                                        </div>
-                                                        <p class="text-muted">Dokument Office - <%= fileExtension.toUpperCase() %></p>
-                                                        <p class="text-muted"><small>Podgląd niedostępny. Pobierz plik aby go otworzyć.</small></p>
-                                                    </div>
-                                                <% } else { %>
-                                                    <!-- Generic file preview -->
-                                                    <div class="text-center">
-                                                        <div class="mb-3">
-                                                            <i class="bi bi-file-earmark" style="font-size: 3rem; color: #6c757d;"></i>
-                                                        </div>
-                                                        <p class="text-muted">Plik - <%= fileExtension.toUpperCase() %></p>
-                                                        <p class="text-muted"><small>Podgląd niedostępny dla tego typu pliku</small></p>
-                                                    </div>
-                                                <% } %>
-                                            </div>
-                                            
-                                            <!-- Additional actions -->
-                                            <div class="d-flex gap-2">
-                                                <a href="<%= createUrl(note.attachment) %>" 
-                                                   class="btn btn-sm btn-outline-primary" target="_blank">
-                                                    <i class="bi bi-eye"></i> Otwórz w nowej karcie
-                                                </a>
-                                                <% if (isImage || isPdf) { %>
-                                                <button class="btn btn-sm btn-outline-secondary" 
-                                                        onclick="toggleFullscreen()">
-                                                    <i class="bi bi-arrows-fullscreen"></i> Pełny ekran
-                                                </button>
-                                                <% } %>
-                                            </div>
+                                                        <% } else if (isPdf) { %>
+                                                            <!-- PDF preview -->
+                                                            <div class="text-center">
+                                                                <iframe src="<%= createUrl(note.attachment) %>"
+                                                                    width="100%" height="400px" class="border rounded">
+                                                                </iframe>
+                                                                <p class="text-muted mt-2 mb-0"><small>Podgląd
+                                                                        PDF</small></p>
+                                                            </div>
+                                                            <% } else if (isVideo) { %>
+                                                                <!-- Video preview -->
+                                                                <div class="text-center">
+                                                                    <video controls
+                                                                        style="max-width: 100%; max-height: 400px;"
+                                                                        class="rounded">
+                                                                        <source src="<%= createUrl(note.attachment) %>"
+                                                                            type="video/<%= fileExtension %>">
+                                                                        Twoja przeglądarka nie obsługuje odtwarzania
+                                                                        wideo.
+                                                                    </video>
+                                                                </div>
+                                                                <% } else if (isAudio) { %>
+                                                                    <!-- Audio preview -->
+                                                                    <div class="text-center">
+                                                                        <div class="mb-3">
+                                                                            <i class="bi bi-music-note-beamed"
+                                                                                style="font-size: 3rem; color: #6c757d;"></i>
+                                                                        </div>
+                                                                        <audio controls
+                                                                            style="width: 100%; max-width: 400px;">
+                                                                            <source
+                                                                                src="<%= createUrl(note.attachment) %>"
+                                                                                type="audio/<%= fileExtension %>">
+                                                                            Twoja przeglądarka nie obsługuje odtwarzania
+                                                                            audio.
+                                                                        </audio>
+                                                                    </div>
+                                                                    <% } else if (isText) { %>
+                                                                        <!-- Text file preview placeholder -->
+                                                                        <div class="text-center">
+                                                                            <div class="mb-3">
+                                                                                <i class="bi bi-file-text"
+                                                                                    style="font-size: 3rem; color: #6c757d;"></i>
+                                                                            </div>
+                                                                            <p class="text-muted">Plik tekstowy - <%=
+                                                                                    fileExtension.toUpperCase() %>
+                                                                            </p>
+                                                                            <a href="<%= createUrl(note.attachment) %>"
+                                                                                class="btn btn-sm btn-outline-primary"
+                                                                                target="_blank">
+                                                                                <i class="bi bi-eye"></i> Otwórz w nowej
+                                                                                karcie
+                                                                            </a>
+                                                                        </div>
+                                                                        <% } else if (isDocument) { %>
+                                                                            <!-- Document preview -->
+                                                                            <div class="text-center">
+                                                                                <div class="mb-3">
+                                                                                    <% if
+                                                                                        (fileExtension.includes('doc'))
+                                                                                        { %>
+                                                                                        <i class="bi bi-file-word"
+                                                                                            style="font-size: 3rem; color: #2b579a;"></i>
+                                                                                        <% } else if
+                                                                                            (fileExtension.includes('xls'))
+                                                                                            { %>
+                                                                                            <i class="bi bi-file-excel"
+                                                                                                style="font-size: 3rem; color: #217346;"></i>
+                                                                                            <% } else if
+                                                                                                (fileExtension.includes('ppt'))
+                                                                                                { %>
+                                                                                                <i class="bi bi-file-ppt"
+                                                                                                    style="font-size: 3rem; color: #d24726;"></i>
+                                                                                                <% } %>
+                                                                                </div>
+                                                                                <p class="text-muted">Dokument Office -
+                                                                                    <%= fileExtension.toUpperCase() %>
+                                                                                </p>
+                                                                                <p class="text-muted"><small>Podgląd
+                                                                                        niedostępny. Pobierz plik aby go
+                                                                                        otworzyć.</small></p>
+                                                                            </div>
+                                                                            <% } else { %>
+                                                                                <!-- Generic file preview -->
+                                                                                <div class="text-center">
+                                                                                    <div class="mb-3">
+                                                                                        <i class="bi bi-file-earmark"
+                                                                                            style="font-size: 3rem; color: #6c757d;"></i>
+                                                                                    </div>
+                                                                                    <p class="text-muted">Plik - <%=
+                                                                                            fileExtension.toUpperCase()
+                                                                                            %>
+                                                                                    </p>
+                                                                                    <p class="text-muted"><small>Podgląd
+                                                                                            niedostępny dla tego typu
+                                                                                            pliku</small></p>
+                                                                                </div>
+                                                                                <% } %>
+                                                </div>
+
+                                                <!-- Additional actions -->
+                                                <div class="d-flex gap-2">
+                                                    <a href="<%= createUrl(note.attachment) %>"
+                                                        class="btn btn-sm btn-outline-primary" target="_blank">
+                                                        <i class="bi bi-eye"></i> Otwórz w nowej karcie
+                                                    </a>
+                                                    <% if (isImage || isPdf) { %>
+                                                        <button class="btn btn-sm btn-outline-secondary"
+                                                            onclick="toggleFullscreen()">
+                                                            <i class="bi bi-arrows-fullscreen"></i> Pełny ekran
+                                                        </button>
+                                                        <% } %>
+                                                </div>
                                         </div>
                                     </div>
                                     <% } %>

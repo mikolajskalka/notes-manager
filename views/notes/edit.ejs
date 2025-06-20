@@ -59,7 +59,15 @@
 
                             <div class="mb-3">
                                 <label for="attachment" class="form-label">Załącznik (opcjonalnie)</label>
-                                <input class="form-control" type="file" id="attachment" name="attachment">
+                                <div class="custom-file-upload">
+                                    <input class="form-control" type="file" id="attachment" name="attachment"
+                                        style="display: none;">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        onclick="document.getElementById('attachment').click();">
+                                        <i class="bi bi-paperclip"></i> Wybierz plik
+                                    </button>
+                                    <span id="file-name" class="ms-2 text-muted"></span>
+                                </div>
                                 <% if (note.attachment) { %>
                                     <div class="mt-2">
                                         <p class="mb-1">Aktualny załącznik:</p>
@@ -86,6 +94,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const labelButtons = document.querySelectorAll('.label-selector');
+            const fileInput = document.getElementById('attachment');
+            const fileNameSpan = document.getElementById('file-name');
 
             labelButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -99,6 +109,17 @@
                         this.style.border = '2px solid #000';
                     }
                 });
+            });
+
+            // Handle file selection
+            fileInput.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    fileNameSpan.textContent = this.files[0].name;
+                    fileNameSpan.className = 'ms-2 text-success';
+                } else {
+                    fileNameSpan.textContent = '';
+                    fileNameSpan.className = 'ms-2 text-muted';
+                }
             });
         });
     </script>

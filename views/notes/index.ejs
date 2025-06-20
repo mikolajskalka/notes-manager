@@ -71,38 +71,49 @@
                                     <div class="card-body">
                                         <h5 class="card-title">
                                             <%= note.title %>
-                                            <% if (note.attachment) { %>
-                                                <%
-                                                    // Extract file extension for icon
-                                                    const fileExtension = note.attachment.split('.').pop().toLowerCase();
-                                                    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension);
-                                                    const isPdf = fileExtension === 'pdf';
-                                                    const isVideo = ['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(fileExtension);
-                                                    const isAudio = ['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(fileExtension);
-                                                    const isDocument = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExtension);
-                                                %>
-                                                <span class="ms-2" title="Załącznik: <%= note.attachment.split('/').pop() %>">
-                                                    <% if (isImage) { %>
-                                                        <i class="bi bi-image text-success"></i>
-                                                    <% } else if (isPdf) { %>
-                                                        <i class="bi bi-file-pdf text-danger"></i>
-                                                    <% } else if (isVideo) { %>
-                                                        <i class="bi bi-play-circle text-primary"></i>
-                                                    <% } else if (isAudio) { %>
-                                                        <i class="bi bi-music-note-beamed text-info"></i>
-                                                    <% } else if (isDocument) { %>
-                                                        <% if (fileExtension.includes('doc')) { %>
-                                                            <i class="bi bi-file-word text-primary"></i>
-                                                        <% } else if (fileExtension.includes('xls')) { %>
-                                                            <i class="bi bi-file-excel text-success"></i>
-                                                        <% } else if (fileExtension.includes('ppt')) { %>
-                                                            <i class="bi bi-file-ppt text-warning"></i>
+                                                <% if (note.attachment) { %>
+                                                    <% // Extract file extension for icon const
+                                                        fileExtension=note.attachment.split('.').pop().toLowerCase();
+                                                        const isImage=['jpg', 'jpeg' , 'png' , 'gif' , 'bmp' , 'webp'
+                                                        , 'svg' ].includes(fileExtension); const
+                                                        isPdf=fileExtension==='pdf' ; const isVideo=['mp4', 'webm'
+                                                        , 'ogg' , 'avi' , 'mov' ].includes(fileExtension); const
+                                                        isAudio=['mp3', 'wav' , 'ogg' , 'aac' , 'flac'
+                                                        ].includes(fileExtension); const isDocument=['doc', 'docx'
+                                                        , 'xls' , 'xlsx' , 'ppt' , 'pptx' ].includes(fileExtension); %>
+                                                        <span class="ms-2"
+                                                            title="Załącznik: <%= note.attachment.split('/').pop() %>">
+                                                            <% if (isImage) { %>
+                                                                <i class="bi bi-image text-success"></i>
+                                                                <% } else if (isPdf) { %>
+                                                                    <i class="bi bi-file-pdf text-danger"></i>
+                                                                    <% } else if (isVideo) { %>
+                                                                        <i class="bi bi-play-circle text-primary"></i>
+                                                                        <% } else if (isAudio) { %>
+                                                                            <i
+                                                                                class="bi bi-music-note-beamed text-info"></i>
+                                                                            <% } else if (isDocument) { %>
+                                                                                <% if (fileExtension.includes('doc')) {
+                                                                                    %>
+                                                                                    <i
+                                                                                        class="bi bi-file-word text-primary"></i>
+                                                                                    <% } else if
+                                                                                        (fileExtension.includes('xls'))
+                                                                                        { %>
+                                                                                        <i
+                                                                                            class="bi bi-file-excel text-success"></i>
+                                                                                        <% } else if
+                                                                                            (fileExtension.includes('ppt'))
+                                                                                            { %>
+                                                                                            <i
+                                                                                                class="bi bi-file-ppt text-warning"></i>
+                                                                                            <% } %>
+                                                                                                <% } else { %>
+                                                                                                    <i
+                                                                                                        class="bi bi-paperclip text-secondary"></i>
+                                                                                                    <% } %>
+                                                        </span>
                                                         <% } %>
-                                                    <% } else { %>
-                                                        <i class="bi bi-paperclip text-secondary"></i>
-                                                    <% } %>
-                                                </span>
-                                            <% } %>
                                         </h5>
                                         <p class="card-text text-muted">
                                             <small>Ostatnia edycja: <% const date=new Date(note.updatedAt); const
@@ -118,7 +129,7 @@
                                             <div class="mb-2">
                                                 <% note.Labels.forEach(label=> { %>
                                                     <a href="<%= createUrl('/notes/label/' + label.id) %>"
-                                                        class="badge rounded-pill text-decoration-none me-1" 
+                                                        class="badge rounded-pill text-decoration-none me-1"
                                                         style="background-color: <%= label.color %>; opacity: 0.7; border: 2px solid transparent;">
                                                         <%= label.name %>
                                                     </a>
@@ -130,23 +141,22 @@
                                                         note.content.substring(0, 150) + '...' :
                                                         note.content %>
                                                 </p>
-                                                
+
                                                 <!-- Show small preview for image attachments -->
                                                 <% if (note.attachment) { %>
-                                                    <% 
-                                                        const fileExtension = note.attachment.split('.').pop().toLowerCase();
-                                                        const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension);
-                                                    %>
-                                                    <% if (isImage) { %>
-                                                        <div class="mt-2">
-                                                            <img src="<%= createUrl(note.attachment) %>" 
-                                                                 alt="Preview" 
-                                                                 class="img-thumbnail" 
-                                                                 style="max-width: 120px; max-height: 80px; object-fit: cover; cursor: pointer;"
-                                                                 onclick="window.open('<%= createUrl(note.attachment) %>', '_blank')">
-                                                        </div>
-                                                    <% } %>
-                                                <% } %>
+                                                    <% const
+                                                        fileExtension=note.attachment.split('.').pop().toLowerCase();
+                                                        const isImage=['jpg', 'jpeg' , 'png' , 'gif' , 'bmp' , 'webp'
+                                                        , 'svg' ].includes(fileExtension); %>
+                                                        <% if (isImage) { %>
+                                                            <div class="mt-2">
+                                                                <img src="<%= createUrl(note.attachment) %>"
+                                                                    alt="Preview" class="img-thumbnail"
+                                                                    style="max-width: 120px; max-height: 80px; object-fit: cover; cursor: pointer;"
+                                                                    onclick="window.open('<%= createUrl(note.attachment) %>', '_blank')">
+                                                            </div>
+                                                            <% } %>
+                                                                <% } %>
                                     </div>
                                     <div class="card-footer bg-transparent">
                                         <div class="d-flex justify-content-between align-items-center">
