@@ -47,17 +47,17 @@
                                     <div class="mt-4">
                                         <h5>Załącznik:</h5>
                                         <div class="attachment-preview">
-                                            <% // Extract file extension for preview logic const
-                                                fileExtension=note.attachment.split('.').pop().toLowerCase(); const
-                                                fileName=note.attachment.split('/').pop(); const isImage=['jpg', 'jpeg'
-                                                , 'png' , 'gif' , 'bmp' , 'webp' , 'svg' ].includes(fileExtension);
-                                                const isPdf=fileExtension==='pdf' ; const isVideo=['mp4', 'webm' , 'ogg'
-                                                , 'avi' , 'mov' ].includes(fileExtension); const isAudio=['mp3', 'wav'
-                                                , 'ogg' , 'aac' , 'flac' ].includes(fileExtension); const
-                                                isText=['txt', 'md' , 'csv' , 'json' , 'xml' , 'html' , 'css' , 'js'
-                                                , 'ts' , 'py' , 'java' , 'cpp' , 'c' , 'h' ].includes(fileExtension);
-                                                const isDocument=['doc', 'docx' , 'xls' , 'xlsx' , 'ppt' , 'pptx'
-                                                ].includes(fileExtension); %>
+                                            <%
+                                                // Extract file extension for preview logic
+                                                const fileExtension = note.attachment.split('.').pop().toLowerCase();
+                                                const fileName = note.attachment.split('/').pop();
+                                                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(fileExtension);
+                                                const isPdf = fileExtension === 'pdf';
+                                                const isVideo = ['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(fileExtension);
+                                                const isAudio = ['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(fileExtension);
+                                                const isText = ['txt', 'md', 'csv', 'json', 'xml', 'html', 'css', 'js', 'ts', 'py', 'java', 'cpp', 'c', 'h'].includes(fileExtension);
+                                                const isDocument = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileExtension);
+                                            %>
 
                                                 <!-- File info header -->
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -65,24 +65,32 @@
                                                         <strong>
                                                             <%= fileName %>
                                                         </strong>
-                                                        <span class="text-muted ms-2">(<%= fileExtension.toUpperCase()
-                                                                %>)</span>
-                                                        <% // Try to get file size if possible let fileSize='' ; try {
-                                                            const
-                                                            filePath=require('path').join(__dirname, '../../public' ,
-                                                            note.attachment); const fs=require('fs'); if
-                                                            (fs.existsSync(filePath)) { const
-                                                            stats=fs.statSync(filePath); const bytes=stats.size; if
-                                                            (bytes===0) { fileSize='0 Bytes' ; } else { const k=1024;
-                                                            const sizes=['Bytes', 'KB' , 'MB' , 'GB' ]; const
-                                                            i=Math.floor(Math.log(bytes) / Math.log(k));
-                                                            fileSize=parseFloat((bytes / Math.pow(k, i)).toFixed(2))
-                                                            + ' ' + sizes[i]; } } } catch (e) { // Ignore errors, just
-                                                            don't show file size } %>
-                                                            <% if (fileSize) { %>
-                                                                <br><small class="text-muted">Rozmiar: <%= fileSize %>
-                                                                        </small>
-                                                                <% } %>
+                                                        <span class="text-muted ms-2">(<%= fileExtension.toUpperCase() %>)</span>
+                                                        <%
+                                                            // Try to get file size if possible
+                                                            let fileSize = '';
+                                                            try {
+                                                                const filePath = require('path').join(__dirname, '../../public', note.attachment);
+                                                                const fs = require('fs');
+                                                                if (fs.existsSync(filePath)) {
+                                                                    const stats = fs.statSync(filePath);
+                                                                    const bytes = stats.size;
+                                                                    if (bytes === 0) {
+                                                                        fileSize = '0 Bytes';
+                                                                    } else {
+                                                                        const k = 1024;
+                                                                        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                                                                        const i = Math.floor(Math.log(bytes) / Math.log(k));
+                                                                        fileSize = parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                                                                    }
+                                                                }
+                                                            } catch (e) {
+                                                                // Ignore errors, just don't show file size
+                                                            }
+                                                        %>
+                                                        <% if (fileSize) { %>
+                                                            <br><small class="text-muted">Rozmiar: <%= fileSize %></small>
+                                                        <% } %>
                                                     </div>
                                                     <a href="<%= createUrl(note.attachment) %>"
                                                         class="btn btn-sm btn-outline-secondary" target="_blank"
