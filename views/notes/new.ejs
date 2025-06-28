@@ -24,26 +24,58 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Etykiety</label>
-                                <div class="d-flex flex-wrap gap-2 mb-2" id="label-buttons">
-                                    <% if (labels && labels.length> 0) { %>
-                                        <% labels.forEach(label=> { %>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input visually-hidden" type="checkbox"
-                                                    id="label-<%= label.id %>" name="labelIds" value="<%= label.id %>">
-                                                <label class="btn badge rounded-pill px-3 py-2 label-selector"
-                                                    for="label-<%= label.id %>"
-                                                    style="background-color: <%= label.color %>; cursor: pointer; opacity: 0.7; border: 2px solid transparent;">
-                                                    <%= label.name %>
-                                                </label>
-                                            </div>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <p class="text-muted">Brak dostępnych etykiet.</p>
-                                                    <% } %>
+                                
+                                <!-- Selected Labels Display -->
+                                <div class="d-flex flex-wrap gap-2 mb-2" id="selected-labels">
+                                    <!-- Add Label Button -->
+                                    <button type="button" class="badge rounded-pill px-3 py-2 d-flex align-items-center btn-outline-primary" 
+                                            id="add-label-btn" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#labelModal"
+                                            style="border: 2px dashed #0d6efd; background-color: transparent; color: #0d6efd; cursor: pointer; font-size: 0.9em; text-decoration: none;">
+                                        <i class="bi bi-plus-lg me-1"></i> Dodaj etykietę
+                                    </button>
                                 </div>
+                                
                                 <div class="form-text">
-                                    Kliknij na etykiety, aby je wybrać/odznaczyć.
                                     <a href="<%= createUrl('/labels/new') %>" target="_blank">Utwórz nową etykietę</a>
+                                </div>
+                            </div>
+
+                            <!-- Label Selection Modal -->
+                            <div class="modal fade" id="labelModal" tabindex="-1" aria-labelledby="labelModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="labelModalLabel">Wybierz etykiety</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <% if (labels && labels.length > 0) { %>
+                                                <div class="d-flex flex-wrap gap-2" id="available-labels">
+                                                    <% labels.forEach(label => { %>
+                                                        <button type="button" 
+                                                                class="btn badge rounded-pill px-3 py-2 available-label"
+                                                                data-label-id="<%= label.id %>"
+                                                                data-label-name="<%= label.name %>"
+                                                                data-label-color="<%= label.color %>"
+                                                                style="background-color: <%= label.color %>; color: #fff; cursor: pointer; font-size: 0.9em;"
+                                                                onclick="addLabelFromModal(this)">
+                                                            <i class="bi bi-plus me-1"></i><%= label.name %>
+                                                        </button>
+                                                    <% }); %>
+                                                </div>
+                                                <div id="no-labels-message" class="text-muted mt-3 d-none">
+                                                    Wszystkie dostępne etykiety zostały już dodane.
+                                                </div>
+                                            <% } else { %>
+                                                <p class="text-muted">Brak dostępnych etykiet.</p>
+                                            <% } %>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -72,23 +104,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const labelButtons = document.querySelectorAll('.label-selector');
             const fileInput = document.getElementById('attachment');
             const fileNameSpan = document.getElementById('file-name');
-
-            labelButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const checkbox = document.getElementById(this.getAttribute('for'));
-                    // Toggle selected state visually
-                    if (checkbox.checked) {
-                        this.style.opacity = '0.7';
-                        this.style.border = '2px solid transparent';
-                    } else {
-                        this.style.opacity = '1';
-                        this.style.border = '2px solid #000';
-                    }
-                });
-            });
 
             // Handle file selection
             fileInput.addEventListener('change', function () {
@@ -101,4 +118,105 @@
                 }
             });
         });
+
+        // Add label function from modal button
+        function addLabelFromModal(button) {
+            const labelId = button.getAttribute('data-label-id');
+            const labelName = button.getAttribute('data-label-name');
+            const labelColor = button.getAttribute('data-label-color');
+            
+            addLabel(labelId, labelName, labelColor);
+        }
+
+        // Add label function
+        function addLabel(labelId, labelName, labelColor) {
+            // Check if label is already added (look specifically in selected labels)
+            if (document.querySelector(`#selected-labels .selected-label-item[data-label-id="${labelId}"]`)) {
+                console.log('Label already selected');
+                return;
+            }
+
+            // Create new selected label element
+            const selectedLabelsContainer = document.getElementById('selected-labels');
+            const addButton = document.getElementById('add-label-btn');
+            
+            const labelElement = document.createElement('div');
+            labelElement.className = 'selected-label-item';
+            labelElement.setAttribute('data-label-id', labelId);
+            
+            // Create the inner HTML safely
+            const span = document.createElement('span');
+            span.className = 'badge rounded-pill px-3 py-2 d-flex align-items-center';
+            span.style.backgroundColor = labelColor;
+            span.style.color = '#fff';
+            span.style.fontSize = '0.9em';
+            
+            const textNode = document.createTextNode(labelName);
+            span.appendChild(textNode);
+            
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'btn-close btn-close-white ms-2';
+            closeButton.style.fontSize = '0.7em';
+            closeButton.setAttribute('aria-label', 'Usuń etykietę');
+            closeButton.onclick = function() { removeLabel(labelId); };
+            
+            span.appendChild(closeButton);
+            labelElement.appendChild(span);
+            
+            // Add hidden input
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'labelIds';
+            hiddenInput.value = labelId;
+            labelElement.appendChild(hiddenInput);
+            
+            // Insert before the add button
+            selectedLabelsContainer.insertBefore(labelElement, addButton);
+            
+            // Hide the label in the modal
+            const availableLabel = document.querySelector(`#available-labels [data-label-id="${labelId}"]`);
+            if (availableLabel) {
+                availableLabel.classList.add('d-none');
+            }
+            
+            // Check if all labels are now selected
+            updateNoLabelsMessage();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('labelModal'));
+            if (modal) {
+                modal.hide();
+            }
+        }
+
+        // Remove label function
+        function removeLabel(labelId) {
+            // Remove the selected label element
+            const labelElement = document.querySelector(`#selected-labels .selected-label-item[data-label-id="${labelId}"]`);
+            if (labelElement) {
+                labelElement.remove();
+            }
+            
+            // Show the label in the modal again
+            const availableLabel = document.querySelector(`#available-labels [data-label-id="${labelId}"]`);
+            if (availableLabel) {
+                availableLabel.classList.remove('d-none');
+            }
+            
+            // Update no labels message
+            updateNoLabelsMessage();
+        }
+
+        // Update the "no labels" message visibility
+        function updateNoLabelsMessage() {
+            const availableLabels = document.querySelectorAll('#available-labels .available-label:not(.d-none)');
+            const noLabelsMessage = document.getElementById('no-labels-message');
+            
+            if (availableLabels.length === 0) {
+                noLabelsMessage.classList.remove('d-none');
+            } else {
+                noLabelsMessage.classList.add('d-none');
+            }
+        }
     </script>
